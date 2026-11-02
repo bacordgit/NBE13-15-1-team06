@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class OrderStatisticsResponse {
 
-    private LocalDate date;                 // data → date 로 수정됨
+    private LocalDate date;
     private long orderCount;
     private long placedOrderCount;
     private long cancelledOrderCount;

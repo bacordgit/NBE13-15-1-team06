@@ -1,3 +1,4 @@
+/*
 package com.kdt.nbe13151team06.categories.domain;
 
 import lombok.Getter;
@@ -15,3 +16,4 @@ public enum CategoriesName {
     }
 
 }
+*/

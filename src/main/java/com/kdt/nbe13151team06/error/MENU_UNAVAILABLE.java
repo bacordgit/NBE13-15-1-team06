@@ -1,4 +1,4 @@
-package com.kdt.nbe13151team06.exception;
+package com.kdt.nbe13151team06.error;
 
 public class MENU_UNAVAILABLE extends RuntimeException {
     public MENU_UNAVAILABLE(String message) {

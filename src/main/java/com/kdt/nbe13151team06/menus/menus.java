@@ -8,13 +8,13 @@ import jakarta.persistence.*;
 public class menus {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    int id;
+    Long id;
 
     @Column(name="name",nullable =false)
     String name;
 
     @Column(name="price",nullable=false)
-    int price;
+    Integer price;
 
     @Column(name="description",nullable=false)
     String description;
@@ -38,7 +38,7 @@ public class menus {
         this.categories = categories;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 

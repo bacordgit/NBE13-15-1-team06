@@ -3,11 +3,11 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/kdt_project1?allowPublicKeyRetrieval=true&sslMode=DISABLED
     username: root
     password: kdtpass
-jpa:
-  hibernate:
-   ddl-auto: none
-  show-sql: false
-  properties:
+  jpa:
+   hibernate:
+    ddl-auto: none
+    show-sql: false
+   properties:
     hibernate:
       format_sql: true
       highlight_sql: true

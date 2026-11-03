@@ -28,6 +28,6 @@ public interface OrderRepository extends JpaRepository<Order , Long> {
             LocalDateTime start, LocalDateTime end);
 
     List<Order> findByShippingDateAndStatusOrderByEmailAsc(
-            LocalDate shippingDate, OrderStatus status);
+            LocalDate shippingDate, Order.OrderStatus status);
 
 }

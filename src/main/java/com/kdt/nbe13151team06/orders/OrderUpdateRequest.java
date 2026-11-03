@@ -1,3 +1,7 @@
 package com.kdt.nbe13151team06.orders;
 
-public record OrderUpdateRequest(String memo) {}
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+public record OrderUpdateRequest(
+        @NotNull @Size(max = 200) String memo) {}

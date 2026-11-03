@@ -1,5 +1,6 @@
 package com.kdt.nbe13151team06.orders;
 
+import com.kdt.nbe13151team06.orderItems.orderItems;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -7,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -48,6 +51,9 @@ public class Order {
 
     @Column(name = "totalAmount", nullable = false)
     private Long totalAmount;
+
+    @OneToMany(mappedBy = "orderId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<orderItems> items = new ArrayList<>();
 
     public Order(String email, String address, String postcode,
                  LocalDate shippingDate, LocalDateTime now) {

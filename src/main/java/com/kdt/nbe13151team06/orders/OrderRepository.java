@@ -1,4 +1,4 @@
-package com.kdt.nbe13151team06.statistics.repository;
+package com.kdt.nbe13151team06.orders;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDate;
@@ -11,6 +11,6 @@ public interface OrderRepository extends JpaRepository<Order , Long> {
             LocalDateTime start, LocalDateTime end);
 
     List<Order> findByShippingDateAndStatusOrderByEmailAsc(
-            LocalDate shippingDate, OrderStatus status);
+            LocalDate shippingDate, Order.OrderStatus status);
 
 }

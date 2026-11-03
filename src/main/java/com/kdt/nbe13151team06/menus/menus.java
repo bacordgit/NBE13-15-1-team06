@@ -1,5 +1,6 @@
-package com.kdt.nbe13151team06;
+package com.kdt.nbe13151team06.menus;
 
+import com.kdt.nbe13151team06.categories.domain.Categories;
 import jakarta.persistence.*;
 
 @Entity
@@ -58,7 +59,7 @@ public class menus {
     }
 
     public Categories getCategory() {
-        return Categories;
+        return categories;
     }
 
     public void setName(String name) {
@@ -78,6 +79,6 @@ public class menus {
     }
 
     public void setCategory(Categories category) {
-        Categories = category;
+        categories = category;
     }
 }

@@ -6,7 +6,7 @@ public record menuCURequest(
         @NotNull Long categoryId,
         @NotBlank @NotNull String name,
         @NotNull @Max(1000000) @Min(1) int price,
-        @NotNull @Size(min=0, max=300) String description
+        @NotNull @Size(max=300) String description
 
 ) {
     public menuCURequest{

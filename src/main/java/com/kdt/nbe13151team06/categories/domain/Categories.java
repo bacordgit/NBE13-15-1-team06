@@ -15,7 +15,7 @@ public class Categories {
     // categories_id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // id AUTO_INCREMENT
-    private int id;
+    private Long id;
 
     // categories_name - 싱글오리진, 블렌드
     @Enumerated(EnumType.STRING)

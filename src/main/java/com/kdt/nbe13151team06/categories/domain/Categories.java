@@ -15,10 +15,10 @@ public class Categories {
     // categories_id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // id AUTO_INCREMENT
-    private int id;
+    private Long id;
 
-    // categories_name - 싱글오리진, 블렌드
-    @Enumerated(EnumType.STRING)
-    private CategoriesName name;
+    // categories_name
+    @Column(nullable = false, unique = true, length = 20)
+    private String name;
 
 }

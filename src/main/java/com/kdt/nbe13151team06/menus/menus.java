@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 public class menus {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    Integer id;
+    Long id;
 
     @Column(name="name",nullable =false)
     String name;
@@ -38,7 +38,7 @@ public class menus {
         this.categories = categories;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 

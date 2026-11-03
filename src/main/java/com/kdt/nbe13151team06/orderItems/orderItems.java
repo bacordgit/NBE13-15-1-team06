@@ -9,7 +9,7 @@ import jakarta.persistence.*;
 public class orderItems {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    Long id;
 
     @ManyToOne(fetch =FetchType.LAZY)
     @JoinColumn(name="orderId",nullable=false)
@@ -43,7 +43,7 @@ public class orderItems {
         this.line_amount=unit_price*quantity;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 

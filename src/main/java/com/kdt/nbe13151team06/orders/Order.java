@@ -57,7 +57,7 @@ public class Order {
         this.shippingDate = shippingDate;
         this.status = OrderStatus.PLACED;
         this.totalAmount = 0L;
-        this.createdAt = now;       // shippingDate를 계산한 그 now와 같은 값
+        this.createdAt = now;
         this.updatedAt = now;
 
     }
@@ -71,7 +71,7 @@ public class Order {
     }
 
     public void changeMemo(String memo, LocalDateTime now) {
-        this.memo = memo;           // trim하지 않고 그대로 저장
+        this.memo = memo;
         this.updatedAt = now;
     }
 }

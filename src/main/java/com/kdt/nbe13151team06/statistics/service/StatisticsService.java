@@ -43,7 +43,7 @@ public class StatisticsService {
     // ============================================================
 
     public OrderStatisticsResponse getOrderStatistics(LocalDate date) {
-        validateDate(date, "date");
+        validateDate(date);
 
         List<Order> orders = findOrdersOfDay(date);
         Map<Integer, List<orderItems>> itemsByOrderId = groupItemsByOrderId(orders);
@@ -74,7 +74,7 @@ public class StatisticsService {
     //  - 결과: 고객(이메일)별 1건씩, 이메일 오름차순
     // ============================================================
     public List<CustomerStatisticsResponse> getCustomerStatistics(LocalDate date) {
-        validateDate(date, "date");
+        validateDate(date);
 
         List<Order> orders = findOrdersOfDay(date);
         Map<Integer, List<orderItems>> itemsByOrderId = groupItemsByOrderId(orders);
@@ -117,7 +117,7 @@ public class StatisticsService {
     // ============================================================
 
     public List<MenuStatisticsResponse> getMenuStatistics(LocalDate date) {
-        validateDate(date, "date");
+        validateDate(date);
 
         List<Order> placedOrders = new ArrayList<>();
         for (Order order : findOrdersOfDay(date)) {
@@ -158,7 +158,7 @@ public class StatisticsService {
     // ============================================================
 
     public List<DeliveryBatchResponse> getDeliveryBatches(LocalDate shippingDate) {
-        validateDate(shippingDate, "shippingDate");
+        validateDate(shippingDate);
 
         List<Order> orders = orderRepository
                 .findByShippingDateAndStatusOrderByEmailAsc(shippingDate, Order.OrderStatus.PLACED);
@@ -201,14 +201,14 @@ public class StatisticsService {
     // -------------------
 
 // 날짜 검사
-    private void validateDate(LocalDate date, String fieldName) {
+    private void validateDate(LocalDate date) {
         int year = date.getYear();
         if (year < 2000 || year > 2099) {
             throw new VALIDATION_ERROR();
         }
     }
 // 하루에 들어온 주문 전체 조회
-
+//하루는 00:00 ~ 23:59 까지
     private List<Order> findOrdersOfDay(LocalDate date) {
         return orderRepository.findByCreatedAtGreaterThanEqualAndCreatedAtLessThan(
                 date.atStartOfDay(), date.plusDays(1).atStartOfDay());
@@ -230,6 +230,7 @@ public class StatisticsService {
         if (orders.isEmpty()) {
             return map;
         }
+        //In 을 이용해서 한번에 조회
         for (orderItems item : orderItemRepository.findByOrderIdIn(orders)) {
             map.computeIfAbsent(item.getOrderId().getId(), k -> new ArrayList<>()).add(item);
         }

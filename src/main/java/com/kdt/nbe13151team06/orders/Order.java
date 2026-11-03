@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 @Getter
 @Entity
@@ -49,9 +48,6 @@ public class Order {
 
     @Column(name = "totalAmount", nullable = false)
     private Long totalAmount;
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> items = new ArrayList<>();
 
     public Order(String email, String address, String postcode,
                  LocalDate shippingDate, LocalDateTime now) {

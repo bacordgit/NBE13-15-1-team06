@@ -66,7 +66,7 @@ public class menuService {
     @Transactional
     public void delete(Long menuId) {
         menus menu = menuRepository.findById(menuId).orElseThrow(() -> new MenuNotFoundException());
-        if (orderItemsRepository.findByMenu(menu))
+        if (orderItemsRepository.existsByMenu(menu))
             throw new MENU_IN_USE();
         menuRepository.delete(menu);
     }

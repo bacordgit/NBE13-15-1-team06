@@ -80,6 +80,12 @@ public class Order {
         this.memo = memo;
         this.updatedAt = now;
     }
+    public void addItem(orderItems item) {
+        this.items.add(item);
+        this.totalAmount = this.items.stream()
+                .mapToLong(i -> i.getLine_amount())
+                .sum();
+    }
 }
 
 

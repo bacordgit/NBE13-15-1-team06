@@ -23,6 +23,8 @@ public interface OrderRepository extends JpaRepository<Order , Long> {
                                   @Param("status") Order.OrderStatus status,
                                   @Param("address") String address,
                                   @Param("postcode") String postcode);
+    List<Order> findByEmailAndShippingDateAndStatus(
+            String email, LocalDate shippingDate, Order.OrderStatus status);
 
     List<Order> findByCreatedAtGreaterThanEqualAndCreatedAtLessThan(
             LocalDateTime start, LocalDateTime end);

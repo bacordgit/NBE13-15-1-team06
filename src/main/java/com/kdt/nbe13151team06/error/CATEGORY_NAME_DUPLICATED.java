@@ -1,4 +1,4 @@
-package com.kdt.nbe13151team06;
+package com.kdt.nbe13151team06.error;
 
 public class CATEGORY_NAME_DUPLICATED extends RuntimeException {
     public CATEGORY_NAME_DUPLICATED(String message) {

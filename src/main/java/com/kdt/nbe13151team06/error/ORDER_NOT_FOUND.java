@@ -1,4 +1,4 @@
-package com.kdt.nbe13151team06;
+package com.kdt.nbe13151team06.error;
 
 public class ORDER_NOT_FOUND extends RuntimeException {
     public ORDER_NOT_FOUND(String message) {

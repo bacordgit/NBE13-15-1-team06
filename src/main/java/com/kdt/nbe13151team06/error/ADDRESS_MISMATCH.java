@@ -1,4 +1,4 @@
-package com.kdt.nbe13151team06;
+package com.kdt.nbe13151team06.error;
 
 public class ADDRESS_MISMATCH extends RuntimeException {
     public ADDRESS_MISMATCH() {

@@ -9,9 +9,9 @@ public class CustomerStatisticsResponse {
     private int placedOrderCount;
     private int cancelledOrderCount;
     private int totalQuantity;
-    private int totalAmount;
+    private long totalAmount;
 
-    public CustomerStatisticsResponse(LocalDate date, String email, int orderCount, int placedOrderCount, int cancelledOrderCount, int totalQuantity, int totalAmount) {
+    public CustomerStatisticsResponse(LocalDate date, String email, int orderCount, int placedOrderCount, int cancelledOrderCount, int totalQuantity, long totalAmount) {
         this.date = date;
         this.email = email;
         this.orderCount = orderCount;
@@ -45,7 +45,7 @@ public class CustomerStatisticsResponse {
         return totalQuantity;
     }
 
-    public int getTotalAmount() {
+    public long getTotalAmount() {
         return totalAmount;
     }
 }

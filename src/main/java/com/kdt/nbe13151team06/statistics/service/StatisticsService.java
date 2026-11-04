@@ -2,7 +2,7 @@ package com.kdt.nbe13151team06.statistics.service;
 
 import com.kdt.nbe13151team06.error.VALIDATION_ERROR;
 import com.kdt.nbe13151team06.orderItems.OrderItemRepository;
-import com.kdt.nbe13151team06.orderItems.orderItems;
+import com.kdt.nbe13151team06.orderItems.OrderItems;
 import com.kdt.nbe13151team06.orders.Order;
 import com.kdt.nbe13151team06.orders.OrderRepository;
 import com.kdt.nbe13151team06.statistics.dto.CustomerStatisticsResponse;
@@ -43,10 +43,6 @@ import java.util.TreeMap;
 @Transactional(readOnly = true)
 public class StatisticsService {
 
-    // 허용하는 날짜 범위 (현재는 validateDate에서 연도로 직접 검사하고 있음)
-    private static final LocalDate MIN_DATE = LocalDate.of(2000, 1, 1);
-    private static final LocalDate MAX_DATE = LocalDate.of(2099, 12, 31);
-
     private final OrderRepository orderRepository;          // 주문 조회
     private final OrderItemRepository orderItemRepository;  // 주문 상품(주문에 담긴 메뉴) 조회
 
@@ -68,7 +64,7 @@ public class StatisticsService {
         // 해당 날짜에 접수된 주문 전체 (PLACED + 취소 모두 포함)
         List<Order> orders = findOrdersOfDay(date);
         // 주문 ID -> 그 주문의 상품 목록 (쿼리 1번으로 한꺼번에 조회)
-        Map<Integer, List<orderItems>> itemsByOrderId = groupItemsByOrderId(orders);
+        Map<Long, List<OrderItems>> itemsByOrderId = groupItemsByOrderId(orders);
 
         int placedOrderCount = 0;     // 정상 접수 건수
         int cancelledOrderCount = 0;  // 취소 건수
@@ -79,7 +75,7 @@ public class StatisticsService {
             if (order.getStatus() == Order.OrderStatus.PLACED) {
                 // 정상 주문: 건수 + 수량 + 금액 합산
                 placedOrderCount++;
-                List<orderItems> items = itemsByOrderId.getOrDefault(order.getId(), List.of());
+                List<OrderItems> items = itemsByOrderId.getOrDefault(order.getId(), List.of());
                 totalQuantity += sumQuantity(items);
                 totalAmount += sumLineAmount(items);
             } else {
@@ -102,7 +98,7 @@ public class StatisticsService {
         validateDate(date);
 
         List<Order> orders = findOrdersOfDay(date);
-        Map<Integer, List<orderItems>> itemsByOrderId = groupItemsByOrderId(orders);
+        Map<Long, List<OrderItems>> itemsByOrderId = groupItemsByOrderId(orders);
         // 이메일 -> 그 고객의 주문 목록 (TreeMap이라 이메일 오름차순)
         Map<String, List<Order>> ordersByEmail = groupByEmail(orders);
 
@@ -121,7 +117,7 @@ public class StatisticsService {
             for (Order order : customerOrders) {
                 if (order.getStatus() == Order.OrderStatus.PLACED) {
                     placedOrderCount++;
-                    List<orderItems> items = itemsByOrderId.getOrDefault(order.getId(), List.of());
+                    List<OrderItems> items = itemsByOrderId.getOrDefault(order.getId(), List.of());
                     totalQuantity += sumQuantity(items);
                     totalAmount += sumLineAmount(items);
                 } else {
@@ -155,17 +151,17 @@ public class StatisticsService {
         }
 
         // 주문이 없으면 DB 조회를 건너뛴다
-        List<orderItems> items = placedOrders.isEmpty()
+        List<OrderItems> items = placedOrders.isEmpty()
                 ? List.of()
                 : orderItemRepository.findByOrderIdIn(placedOrders);
 
         List<MenuStatisticsResponse> result = new ArrayList<>();
         // (메뉴ID + 단가 + 메뉴명)이 같은 상품끼리 묶어서 수량/금액을 합산
-        for (List<orderItems> sameItems : groupByMenuPriceName(items).values()) {
-            orderItems first = sameItems.get(0);  // 대표 상품 (메뉴 정보를 꺼내기 위함)
+        for (List<OrderItems> sameItems : groupByMenuPriceName(items).values()) {
+            OrderItems first = sameItems.get(0);  // 대표 상품 (메뉴 정보를 꺼내기 위함)
             int totalQuantity = 0;
             long totalAmount = 0;
-            for (orderItems item : sameItems) {
+            for (OrderItems item : sameItems) {
                 totalQuantity += item.getQuantity();
                 totalAmount += item.getLine_amount();
             }
@@ -194,7 +190,7 @@ public class StatisticsService {
         // 배송일이 같고 PLACED 상태인 주문만 조회 (접수일 기준이 아님에 주의)
         List<Order> orders = orderRepository
                 .findByShippingDateAndStatusOrderByEmailAsc(shippingDate, Order.OrderStatus.PLACED);
-        Map<Integer, List<orderItems>> itemsByOrderId = groupItemsByOrderId(orders);
+        Map<Long, List<OrderItems>> itemsByOrderId = groupItemsByOrderId(orders);
         Map<String, List<Order>> ordersByEmail = groupByEmail(orders);
 
         List<DeliveryBatchResponse> result = new ArrayList<>();
@@ -205,8 +201,8 @@ public class StatisticsService {
             List<Order> customerOrders = entry.getValue();
             Order first = customerOrders.get(0);  // 주소/우편번호는 첫 주문 기준
 
-            List<Integer> orderIds = new ArrayList<>();       // 묶음에 포함된 주문 번호들
-            List<orderItems> batchItems = new ArrayList<>();  // 묶음에 포함된 모든 상품
+            List<Long> orderIds = new ArrayList<>();          // 묶음에 포함된 주문 번호들
+            List<OrderItems> batchItems = new ArrayList<>();  // 묶음에 포함된 모든 상품
 
             for (Order order : customerOrders) {
                 orderIds.add(order.getId());
@@ -266,13 +262,13 @@ public class StatisticsService {
      * 주문 상품들을 "주문 ID -> 상품 목록"으로 묶는다.
      * 주문마다 쿼리를 날리지 않고 IN 쿼리 1번으로 가져온다 (N+1 문제 방지).
      */
-    private Map<Integer, List<orderItems>> groupItemsByOrderId(List<Order> orders) {
-        Map<Integer, List<orderItems>> map = new LinkedHashMap<>();
+    private Map<Long, List<OrderItems>> groupItemsByOrderId(List<Order> orders) {
+        Map<Long, List<OrderItems>> map = new LinkedHashMap<>();
         if (orders.isEmpty()) {
             return map;
         }
         // IN 절로 한 번에 조회 후, 주문 ID별로 분류
-        for (orderItems item : orderItemRepository.findByOrderIdIn(orders)) {
+        for (OrderItems item : orderItemRepository.findByOrderIdIn(orders)) {
             map.computeIfAbsent(item.getOrderId().getId(), k -> new ArrayList<>()).add(item);
         }
         return map;
@@ -283,9 +279,9 @@ public class StatisticsService {
      * 같은 메뉴라도 단가나 이름이 다르면 별개 항목으로 취급한다.
      * LinkedHashMap이라 입력된 순서가 유지된다.
      */
-    private Map<String, List<orderItems>> groupByMenuPriceName(List<orderItems> items) {
-        Map<String, List<orderItems>> map = new LinkedHashMap<>();
-        for (orderItems item : items) {
+    private Map<String, List<OrderItems>> groupByMenuPriceName(List<OrderItems> items) {
+        Map<String, List<OrderItems>> map = new LinkedHashMap<>();
+        for (OrderItems item : items) {
             String key = item.getMenuId().getId() + "|" + item.getUnit_price() + "|" + item.getMenuName();
             map.computeIfAbsent(key, k -> new ArrayList<>()).add(item);
         }
@@ -293,18 +289,18 @@ public class StatisticsService {
     }
 
     /** 상품 목록의 수량(quantity) 합계 */
-    private int sumQuantity(List<orderItems> items) {
+    private int sumQuantity(List<OrderItems> items) {
         int sum = 0;
-        for (orderItems item : items) {
+        for (OrderItems item : items) {
             sum += item.getQuantity();
         }
         return sum;
     }
 
     /** 상품 목록의 금액(line_amount = 단가 x 수량) 합계. 금액이 커질 수 있어 long 사용 */
-    private long sumLineAmount(List<orderItems> items) {
+    private long sumLineAmount(List<OrderItems> items) {
         long sum = 0;
-        for (orderItems item : items) {
+        for (OrderItems item : items) {
             sum += item.getLine_amount();
         }
         return sum;
@@ -314,13 +310,13 @@ public class StatisticsService {
      * 배송 묶음 안의 상품들을 같은 메뉴끼리 합쳐서 수량/금액을 합산한다.
      * (A18 메뉴 통계와 같은 규칙, 정렬: 메뉴 ID -> 단가 -> 메뉴명)
      */
-    private List<DeliveryItemResponse> mergeDeliveryItems(List<orderItems> items) {
+    private List<DeliveryItemResponse> mergeDeliveryItems(List<OrderItems> items) {
         List<DeliveryItemResponse> result = new ArrayList<>();
-        for (List<orderItems> sameItems : groupByMenuPriceName(items).values()) {
-            orderItems first = sameItems.get(0);
+        for (List<OrderItems> sameItems : groupByMenuPriceName(items).values()) {
+            OrderItems first = sameItems.get(0);
             int quantity = 0;
             long lineAmount = 0;
-            for (orderItems item : sameItems) {
+            for (OrderItems item : sameItems) {
                 quantity += item.getQuantity();
                 lineAmount += item.getLine_amount();
             }

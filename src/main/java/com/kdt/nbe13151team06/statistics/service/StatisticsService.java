@@ -21,16 +21,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * 통계 관련 비즈니스 로직을 담당하는 서비스.
+ *
+ * <p>제공 기능 (API 번호 기준)</p>
+ * <ul>
+ *   <li>A17: 접수일별 주문 통계 ({@link #getOrderStatistics})</li>
+ *   <li>A24: 접수일별 고객 통계 ({@link #getCustomerStatistics})</li>
+ *   <li>A18: 접수일별 메뉴 통계 ({@link #getMenuStatistics})</li>
+ *   <li>A14: 배송 묶음 ({@link #getDeliveryBatches})</li>
+ * </ul>
+ *
+ * <p>공통 규칙</p>
+ * <ul>
+ *   <li>모든 메서드는 조회 전용이라 클래스에 {@code @Transactional(readOnly = true)}를 적용했다.</li>
+ *   <li>날짜는 2000년 ~ 2099년 사이만 허용한다 (벗어나면 {@link VALIDATION_ERROR}).</li>
+ *   <li>수량/금액 합계는 PLACED(접수) 상태 주문만 계산한다. 그 외(취소)는 건수만 센다.</li>
+ * </ul>
+ */
 @Service
 @Transactional(readOnly = true)
 public class StatisticsService {
 
+    // 허용하는 날짜 범위 (현재는 validateDate에서 연도로 직접 검사하고 있음)
     private static final LocalDate MIN_DATE = LocalDate.of(2000, 1, 1);
     private static final LocalDate MAX_DATE = LocalDate.of(2099, 12, 31);
 
-    private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
+    private final OrderRepository orderRepository;          // 주문 조회
+    private final OrderItemRepository orderItemRepository;  // 주문 상품(주문에 담긴 메뉴) 조회
 
+    // 생성자 주입 (Spring이 Repository를 자동으로 넣어줌)
     public StatisticsService(OrderRepository orderRepository,
                              OrderItemRepository orderItemRepository) {
         this.orderRepository = orderRepository;
@@ -45,21 +65,25 @@ public class StatisticsService {
     public OrderStatisticsResponse getOrderStatistics(LocalDate date) {
         validateDate(date);
 
+        // 해당 날짜에 접수된 주문 전체 (PLACED + 취소 모두 포함)
         List<Order> orders = findOrdersOfDay(date);
+        // 주문 ID -> 그 주문의 상품 목록 (쿼리 1번으로 한꺼번에 조회)
         Map<Integer, List<orderItems>> itemsByOrderId = groupItemsByOrderId(orders);
 
-        int placedOrderCount = 0;
-        int cancelledOrderCount = 0;
-        int totalQuantity = 0;
-        long totalAmount = 0;
+        int placedOrderCount = 0;     // 정상 접수 건수
+        int cancelledOrderCount = 0;  // 취소 건수
+        int totalQuantity = 0;        // 총 판매 수량 (PLACED만)
+        long totalAmount = 0;         // 총 판매 금액 (PLACED만)
 
         for (Order order : orders) {
             if (order.getStatus() == Order.OrderStatus.PLACED) {
+                // 정상 주문: 건수 + 수량 + 금액 합산
                 placedOrderCount++;
                 List<orderItems> items = itemsByOrderId.getOrDefault(order.getId(), List.of());
                 totalQuantity += sumQuantity(items);
                 totalAmount += sumLineAmount(items);
             } else {
+                // 취소 주문: 건수만 센다 (금액/수량 제외)
                 cancelledOrderCount++;
             }
         }
@@ -73,15 +97,18 @@ public class StatisticsService {
     //  - 기준: 접수일(createdAt)이 date인 주문 전체
     //  - 결과: 고객(이메일)별 1건씩, 이메일 오름차순
     // ============================================================
+
     public List<CustomerStatisticsResponse> getCustomerStatistics(LocalDate date) {
         validateDate(date);
 
         List<Order> orders = findOrdersOfDay(date);
         Map<Integer, List<orderItems>> itemsByOrderId = groupItemsByOrderId(orders);
+        // 이메일 -> 그 고객의 주문 목록 (TreeMap이라 이메일 오름차순)
         Map<String, List<Order>> ordersByEmail = groupByEmail(orders);
 
         List<CustomerStatisticsResponse> result = new ArrayList<>();
 
+        // 고객 한 명씩 돌면서 A17과 같은 방식으로 집계
         for (Map.Entry<String, List<Order>> entry : ordersByEmail.entrySet()) {
             String email = entry.getKey();
             List<Order> customerOrders = entry.getValue();
@@ -119,6 +146,7 @@ public class StatisticsService {
     public List<MenuStatisticsResponse> getMenuStatistics(LocalDate date) {
         validateDate(date);
 
+        // 취소 주문은 메뉴 판매에서 빼야 하므로 PLACED 주문만 추린다
         List<Order> placedOrders = new ArrayList<>();
         for (Order order : findOrdersOfDay(date)) {
             if (order.getStatus() == Order.OrderStatus.PLACED) {
@@ -126,13 +154,15 @@ public class StatisticsService {
             }
         }
 
+        // 주문이 없으면 DB 조회를 건너뛴다
         List<orderItems> items = placedOrders.isEmpty()
                 ? List.of()
                 : orderItemRepository.findByOrderIdIn(placedOrders);
 
         List<MenuStatisticsResponse> result = new ArrayList<>();
+        // (메뉴ID + 단가 + 메뉴명)이 같은 상품끼리 묶어서 수량/금액을 합산
         for (List<orderItems> sameItems : groupByMenuPriceName(items).values()) {
-            orderItems first = sameItems.get(0);
+            orderItems first = sameItems.get(0);  // 대표 상품 (메뉴 정보를 꺼내기 위함)
             int totalQuantity = 0;
             long totalAmount = 0;
             for (orderItems item : sameItems) {
@@ -143,6 +173,7 @@ public class StatisticsService {
                     first.getUnit_price(), totalQuantity, totalAmount));
         }
 
+        // 정렬: 메뉴 ID -> 단가 -> 메뉴명
         result.sort(Comparator.comparingLong(MenuStatisticsResponse::getMenuId)
                 .thenComparingInt(MenuStatisticsResponse::getUnitPrice)
                 .thenComparing(MenuStatisticsResponse::getMenuName));
@@ -160,6 +191,7 @@ public class StatisticsService {
     public List<DeliveryBatchResponse> getDeliveryBatches(LocalDate shippingDate) {
         validateDate(shippingDate);
 
+        // 배송일이 같고 PLACED 상태인 주문만 조회 (접수일 기준이 아님에 주의)
         List<Order> orders = orderRepository
                 .findByShippingDateAndStatusOrderByEmailAsc(shippingDate, Order.OrderStatus.PLACED);
         Map<Integer, List<orderItems>> itemsByOrderId = groupItemsByOrderId(orders);
@@ -167,20 +199,22 @@ public class StatisticsService {
 
         List<DeliveryBatchResponse> result = new ArrayList<>();
 
+        // 고객 한 명 = 배송 묶음 한 개
         for (Map.Entry<String, List<Order>> entry : ordersByEmail.entrySet()) {
             String email = entry.getKey();
             List<Order> customerOrders = entry.getValue();
-            Order first = customerOrders.get(0);
+            Order first = customerOrders.get(0);  // 주소/우편번호는 첫 주문 기준
 
-            List<Integer> orderIds = new ArrayList<>();
-            List<orderItems> batchItems = new ArrayList<>();
+            List<Integer> orderIds = new ArrayList<>();       // 묶음에 포함된 주문 번호들
+            List<orderItems> batchItems = new ArrayList<>();  // 묶음에 포함된 모든 상품
 
             for (Order order : customerOrders) {
                 orderIds.add(order.getId());
                 batchItems.addAll(itemsByOrderId.getOrDefault(order.getId(), List.of()));
             }
-            orderIds.sort(null);
+            orderIds.sort(null);  // 주문 번호 오름차순 (null = 자연 정렬)
 
+            // 같은 메뉴는 하나로 합친 상품 목록
             List<DeliveryItemResponse> deliveryItems = mergeDeliveryItems(batchItems);
             int totalQuantity = 0;
             long totalAmount = 0;
@@ -198,24 +232,28 @@ public class StatisticsService {
     }
 
 
-    // -------------------
+    // ============================================================
+    // 내부에서만 쓰는 공통 도우미 메서드
+    // ============================================================
 
-// 날짜 검사
+    /** 날짜 검사: 연도가 2000 ~ 2099 범위를 벗어나면 VALIDATION_ERROR 발생 */
     private void validateDate(LocalDate date) {
         int year = date.getYear();
         if (year < 2000 || year > 2099) {
             throw new VALIDATION_ERROR();
         }
     }
-// 하루에 들어온 주문 전체 조회
-//하루는 00:00 ~ 23:59 까지
+
+    /**
+     * 하루 동안 접수된 주문 전체 조회.
+     * 하루 = 당일 00:00:00 이상 ~ 다음날 00:00:00 미만 (23:59:59.999...까지 포함)
+     */
     private List<Order> findOrdersOfDay(LocalDate date) {
         return orderRepository.findByCreatedAtGreaterThanEqualAndCreatedAtLessThan(
                 date.atStartOfDay(), date.plusDays(1).atStartOfDay());
     }
 
-
- // 이메일 묶기
+    /** 주문을 이메일별로 묶는다. TreeMap을 써서 이메일 오름차순으로 자동 정렬된다. */
     private Map<String, List<Order>> groupByEmail(List<Order> orders) {
         Map<String, List<Order>> map = new TreeMap<>();
         for (Order order : orders) {
@@ -224,20 +262,27 @@ public class StatisticsService {
         return map;
     }
 
-    // 주문 번호 묶기
+    /**
+     * 주문 상품들을 "주문 ID -> 상품 목록"으로 묶는다.
+     * 주문마다 쿼리를 날리지 않고 IN 쿼리 1번으로 가져온다 (N+1 문제 방지).
+     */
     private Map<Integer, List<orderItems>> groupItemsByOrderId(List<Order> orders) {
         Map<Integer, List<orderItems>> map = new LinkedHashMap<>();
         if (orders.isEmpty()) {
             return map;
         }
-        //In 을 이용해서 한번에 조회
+        // IN 절로 한 번에 조회 후, 주문 ID별로 분류
         for (orderItems item : orderItemRepository.findByOrderIdIn(orders)) {
             map.computeIfAbsent(item.getOrderId().getId(), k -> new ArrayList<>()).add(item);
         }
         return map;
     }
 
-    // 같은 메뉴 묶기
+    /**
+     * 같은 메뉴끼리 묶는다. 기준(key) = "메뉴ID|단가|메뉴명".
+     * 같은 메뉴라도 단가나 이름이 다르면 별개 항목으로 취급한다.
+     * LinkedHashMap이라 입력된 순서가 유지된다.
+     */
     private Map<String, List<orderItems>> groupByMenuPriceName(List<orderItems> items) {
         Map<String, List<orderItems>> map = new LinkedHashMap<>();
         for (orderItems item : items) {
@@ -247,7 +292,7 @@ public class StatisticsService {
         return map;
     }
 
-    // 주문 수량 합계
+    /** 상품 목록의 수량(quantity) 합계 */
     private int sumQuantity(List<orderItems> items) {
         int sum = 0;
         for (orderItems item : items) {
@@ -256,6 +301,7 @@ public class StatisticsService {
         return sum;
     }
 
+    /** 상품 목록의 금액(line_amount = 단가 x 수량) 합계. 금액이 커질 수 있어 long 사용 */
     private long sumLineAmount(List<orderItems> items) {
         long sum = 0;
         for (orderItems item : items) {
@@ -264,6 +310,10 @@ public class StatisticsService {
         return sum;
     }
 
+    /**
+     * 배송 묶음 안의 상품들을 같은 메뉴끼리 합쳐서 수량/금액을 합산한다.
+     * (A18 메뉴 통계와 같은 규칙, 정렬: 메뉴 ID -> 단가 -> 메뉴명)
+     */
     private List<DeliveryItemResponse> mergeDeliveryItems(List<orderItems> items) {
         List<DeliveryItemResponse> result = new ArrayList<>();
         for (List<orderItems> sameItems : groupByMenuPriceName(items).values()) {

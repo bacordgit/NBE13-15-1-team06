@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 
-// 강의 09의 PostCreateRequest 방식 그대로 (record + 검증 애너테이션)
 public record OrderCreateRequest(
         @NotNull
         @Size(min = 1, max = 100)
@@ -16,6 +15,5 @@ public record OrderCreateRequest(
         String email,
         @NotBlank @Size(max = 200) String address,
         @NotNull @Pattern(regexp = "^[0-9]{5}$") String postcode,
-        @NotEmpty @Size(max = 10) @Valid List<OrderItemRequest> items,
-        @NotNull @Size(max = 200) String memo) {
+        @NotEmpty @Size(max = 10) @Valid List<OrderItemRequest> items) {
 }

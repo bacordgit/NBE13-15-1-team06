@@ -74,11 +74,10 @@ public class OrderService {
 
         // 주문, 항목 저장
         Order order = new Order(request.email(), address, postcode, shippingDate, now);
-        order.changeMemo(request.memo(), now);
+
         for (int i = 0; i < items.size(); i++) {
             menus menu = found.get(i);
-            order.addItem(new orderItems(order, menu, menu.getName(), menu.getPrice(),
-                    items.get(i).quantity()));
+            order.addItem(new orderItems(order, menu, menu.getName(), menu.getPrice(),items.get(i).quantity()));
         }
         Order saved = this.orderRepository.save(order);
         return toResponse(saved);
@@ -132,7 +131,7 @@ public class OrderService {
             items.add(new OrderItemRequest(item.getMenuId().getId(), item.getQuantity()));
         }
         return create(new OrderCreateRequest(old.getEmail(), old.getAddress(),
-                old.getPostcode(), items, old.getMemo()));
+                old.getPostcode(), items));
     }
 
     private Order find(Long id) {

@@ -1,6 +1,6 @@
 package com.kdt.nbe13151team06.orders;
 
-// A12 목록용 (변환은 OrderService.toListResponse)
+// A12 목록용
 public record OrderListResponse(
         Long id,
         String createdAt,

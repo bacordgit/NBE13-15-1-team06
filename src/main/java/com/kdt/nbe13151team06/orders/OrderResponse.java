@@ -3,7 +3,7 @@ package com.kdt.nbe13151team06.orders;
 import com.kdt.nbe13151team06.orderItems.OrderItemResponse;
 import java.util.List;
 
-// 필드만 가진 record (변환은 OrderService.toResponse)
+
 public record OrderResponse(
         Long id,
         String email,

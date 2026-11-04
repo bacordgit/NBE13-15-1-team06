@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-// 2026-11-03T09:12:36+09:00 형식. null이면 null (cancelledAt용)
+// 2026-11-03T09:12:36+09:00 형식
 final class OrderTimeFormat {
 
     private static final DateTimeFormatter FORMAT =

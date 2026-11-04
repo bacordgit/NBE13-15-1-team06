@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-// 주문 규칙 모음 (날짜 계산은 이 파일 한 곳에만 둠)
+// 주문 규칙
 final class OrderRules {
 
     private OrderRules() {

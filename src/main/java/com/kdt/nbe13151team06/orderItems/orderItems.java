@@ -13,11 +13,11 @@ public class orderItems {
 
     @ManyToOne(fetch =FetchType.LAZY)
     @JoinColumn(name="orderId",nullable=false)
-    Order orderId;
+    Order order;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="menuId",nullable=false)
-    menus menuId;
+    menus menu;
 
     @Column(name="menuName",nullable =false)
     String menuName;
@@ -34,9 +34,9 @@ public class orderItems {
 
     }
 
-    public orderItems(Order orderId, menus menuId, String menuName, Integer unit_price, Integer quantity) {
-        this.orderId = orderId;
-        this.menuId = menuId;
+    public orderItems(Order order, menus menu, String menuName, Integer unit_price, Integer quantity) {
+        this.order = order;
+        this.menu = menu;
         this.menuName = menuName;
         this.unit_price = unit_price;
         this.quantity = quantity;
@@ -48,11 +48,11 @@ public class orderItems {
     }
 
     public Order getOrderId() {
-        return orderId;
+        return order;
     }
 
     public menus getMenuId() {
-        return menuId;
+        return menu;
     }
 
     public String getMenuName() {
@@ -71,12 +71,12 @@ public class orderItems {
         return line_amount;
     }
 
-    public void setOrderId(Order orderId) {
-        this.orderId = orderId;
+    public void setOrderId(Order order) {
+        this.order = order;
     }
 
-    public void setMenuId(menus menuId) {
-        this.menuId = menuId;
+    public void setMenuId(menus menu) {
+        this.menu = menu;
     }
 
     public void setMenuName(String menuName) {

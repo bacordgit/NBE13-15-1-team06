@@ -7,11 +7,12 @@ import com.kdt.nbe13151team06.error.MENU_IN_USE;
 import com.kdt.nbe13151team06.error.MenuNotFoundException;
 import com.kdt.nbe13151team06.orderItems.orderItemsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class menuService {
@@ -47,17 +48,46 @@ public class menuService {
         return toResponse(menu);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public menuResponse findOne(Long menuId) {
         menus menu = menuRepository.findById(menuId).orElseThrow(() -> new MenuNotFoundException());
         return toResponse(menu);
     }
+    @Transactional(readOnly=true)
+    public List<menuResponse> findByName(String name){
+        List<menuResponse>list=new ArrayList<>();
+         for(menus menu: menuRepository.findAllByOrderByIdAsc()){
+             if(menu.getName().equals(name)){
+                 list.add(toResponse(menu));
+             }
+         }
+         if(list.isEmpty()){
+             throw new MenuNotFoundException();
+         }
+         return list;
+    }
 
-    @Transactional
+    @Transactional(readOnly=true)
     public List<menuResponse> findAll() {
         List<menuResponse> list = new ArrayList<>();
-        for (menus menu : menuRepository.findAll()) {
+        for (menus menu : menuRepository.findAllByOrderByIdAsc()) {
             list.add(toResponse(menu));
+        }
+        if(list.isEmpty()){
+            throw new MenuNotFoundException();
+        }
+        return list;
+    }
+    @Transactional(readOnly=true)
+    public List<menuResponse> findByAvailable() {
+        List<menuResponse>list=new ArrayList<>();
+        for (menus menu : menuRepository.findAllByOrderByIdAsc()) {
+            if(menu.isAvailable()){
+                list.add(toResponse(menu));
+            }
+        }
+        if(list.isEmpty()){
+            throw new MenuNotFoundException();
         }
         return list;
     }
@@ -68,6 +98,13 @@ public class menuService {
         if (orderItemsRepository.existsByMenu(menu))
             throw new MENU_IN_USE();
         menuRepository.delete(menu);
+    }
+    @Transactional
+    public menuResponse changeAvailable(Long menuId,menuavailableRequest request){
+        menus menu=menuRepository.findById(menuId).orElseThrow(() -> new MenuNotFoundException());
+        menu.setAvailable(request.availability());
+        menuRepository.save(menu);
+        return toResponse(menu);
     }
 
     private menuResponse toResponse(menus menu){

@@ -2,6 +2,9 @@ package com.kdt.nbe13151team06.menus;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface menuRepository extends JpaRepository<menus,Long> {
+import java.util.List;
+import java.util.Optional;
 
+public interface menuRepository extends JpaRepository<menus,Long> {
+List<menus> findAllByOrderByIdAsc();
 }

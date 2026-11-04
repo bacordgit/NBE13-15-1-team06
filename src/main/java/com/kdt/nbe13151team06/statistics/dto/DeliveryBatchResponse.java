@@ -9,13 +9,15 @@ public class DeliveryBatchResponse {
     private final String email;
     private final String address;
     private final String postcode;
-    private final List<Long> orderIds;
+    private final List<Integer> orderIds;
     private final int orderCount;
     private final int totalQuantity;
     private final long totalAmount;
     private final List<DeliveryItemResponse> items;
 
-    public DeliveryBatchResponse(LocalDate shippingDate, String email, String address, String postcode, List<Long> orderIds, int orderCount, int totalQuantity, long totalAmount, List<DeliveryItemResponse> items) {
+    public DeliveryBatchResponse(LocalDate shippingDate, String email, String address, String postcode,
+                                 List<Integer> orderIds, int orderCount, int totalQuantity,
+                                 long totalAmount, List<DeliveryItemResponse> items) {
         this.shippingDate = shippingDate;
         this.email = email;
         this.address = address;
@@ -43,7 +45,7 @@ public class DeliveryBatchResponse {
         return postcode;
     }
 
-    public List<Long> getOrderIds() {
+    public List<Integer> getOrderIds() {
         return orderIds;
     }
 

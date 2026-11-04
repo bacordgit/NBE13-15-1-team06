@@ -6,8 +6,8 @@ import com.kdt.nbe13151team06.error.ORDER_NOT_FOUND;
 import com.kdt.nbe13151team06.error.VALIDATION_ERROR;
 import com.kdt.nbe13151team06.error.MENU_UNAVAILABLE;
 import com.kdt.nbe13151team06.error.ORDER_NOT_CANCELLABLE;
-import com.kdt.nbe13151team06.menus.menuRepository;
-import com.kdt.nbe13151team06.menus.menus;
+import com.kdt.nbe13151team06.menus.MenuRepository;
+import com.kdt.nbe13151team06.menus.Menus;
 import com.kdt.nbe13151team06.orderItems.OrderItemResponse;
 import com.kdt.nbe13151team06.orderItems.OrderItems;
 import org.springframework.stereotype.Service;
@@ -22,9 +22,9 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final menuRepository menuRepo;
+    private final MenuRepository menuRepo;
 
-    public OrderService(OrderRepository orderRepository, menuRepository menuRepo) {
+    public OrderService(OrderRepository orderRepository, MenuRepository menuRepo) {
         this.orderRepository = orderRepository;
         this.menuRepo = menuRepo;
     }
@@ -48,15 +48,15 @@ public class OrderService {
         }
 
         // 메뉴 존재 검증
-        List<menus> found = new ArrayList<>();
+        List<Menus> found = new ArrayList<>();
         for (OrderItemRequest item : items) {
-            menus menu = this.menuRepo.findById(item.menuId())
+            Menus menu = this.menuRepo.findById(item.menuId())
                     .orElseThrow(() -> new MENU_NOT_FOUND());
             found.add(menu);
         }
 
         // 판매 중지 메뉴여부
-        for (menus menu : found) {
+        for (Menus menu : found) {
             if (!menu.isAvailable()) {
                 throw new MENU_UNAVAILABLE("");
             }
@@ -76,7 +76,7 @@ public class OrderService {
         Order order = new Order(request.email(), address, postcode, shippingDate, now);
 
         for (int i = 0; i < items.size(); i++) {
-            menus menu = found.get(i);
+            Menus menu = found.get(i);
             order.addItem(new OrderItems(order, menu, menu.getName(), menu.getPrice(),items.get(i).quantity()));
         }
         Order saved = this.orderRepository.save(order);

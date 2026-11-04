@@ -1,5 +1,6 @@
 package com.kdt.nbe13151team06.orders;
 
+import com.kdt.nbe13151team06.orderItems.OrderItems;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -7,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -16,7 +19,7 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(name = "email", nullable = false, length = 100)
     private String email;
@@ -49,6 +52,9 @@ public class Order {
     @Column(name = "totalAmount", nullable = false)
     private Long totalAmount;
 
+    @OneToMany(mappedBy = "orderId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItems> items = new ArrayList<>();
+
     public Order(String email, String address, String postcode,
                  LocalDate shippingDate, LocalDateTime now) {
         this.email = email;
@@ -73,6 +79,12 @@ public class Order {
     public void changeMemo(String memo, LocalDateTime now) {
         this.memo = memo;
         this.updatedAt = now;
+    }
+    public void addItem(OrderItems item) {
+        this.items.add(item);
+        this.totalAmount = this.items.stream()
+                .mapToLong(i -> i.getLine_amount())
+                .sum();
     }
 }
 

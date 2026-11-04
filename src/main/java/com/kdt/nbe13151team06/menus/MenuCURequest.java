@@ -10,7 +10,7 @@ public record MenuCURequest(
 
 ) {
     public MenuCURequest{
-        name=name.strip();
-        description=description.strip();
+        name = (name == null) ? null : name.strip();
+        description = (description == null) ? null : description.strip();
     }
 }

@@ -6,6 +6,8 @@ import com.kdt.nbe13151team06.categories.dto.CategoriesResponse;
 import com.kdt.nbe13151team06.error.CATEGORY_NAME_DUPLICATED;
 import com.kdt.nbe13151team06.error.CATEGORY_NOT_FOUND;
 import com.kdt.nbe13151team06.error.VALIDATION_ERROR;
+import com.kdt.nbe13151team06.menus.MenuRepository;
+import com.kdt.nbe13151team06.menus.MenuResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +18,12 @@ import java.util.List;
 public class CategoriesService {
 
     private final CategoriesRepository categoriesRepository;
+    private final MenuRepository menuRepository;
 
     @Autowired
-    public CategoriesService(CategoriesRepository categoriesRepository) {
+    public CategoriesService(CategoriesRepository categoriesRepository, MenuRepository menuRepository) {
         this.categoriesRepository = categoriesRepository;
+        this.menuRepository = menuRepository;
     }
 
     // A01 - 카테고리 목록(GET) - /api/v1/categories
@@ -48,7 +52,7 @@ public class CategoriesService {
     // A02 - 카테고리 상세(GET) - /api/v1/categories/{categoriesId}
     @Transactional(readOnly = true)
     public CategoriesResponse findById(Long id) {
-        return CategoriesResponse.from(getCategoryOrThrow(id));
+        return CategoriesResponse.from(getCategoriesOrThrow(id));
     }
 
     // A03 - 카테고리 등록(POST) - /api/v1/categories
@@ -70,7 +74,7 @@ public class CategoriesService {
         validateId(id);
         String name = validateName(request);
 
-        Categories category = getCategoryOrThrow(id);
+        Categories category = getCategoriesOrThrow(id);
 
         if (categoriesRepository.existsByNameAndIdNot(name, id)) {
             throw new CATEGORY_NAME_DUPLICATED("같은 이름의 카테고리가 이미 있습니다.");
@@ -85,7 +89,7 @@ public class CategoriesService {
     public void delete(Long id) {
         validateId(id);
 
-        Categories category = getCategoryOrThrow(id);
+        Categories category = getCategoriesOrThrow(id);
 
         // menuRepository에서 category 사용중인지 확인
         // menuRepository에 existsByCategoryId 추가
@@ -99,22 +103,20 @@ public class CategoriesService {
     // MenuRepository에 추가 -> List<Menus> findAllByCategoryIdOrderByIdAsc(Long id);
     // -> jpa category 인식 안되면, categories로 통합하기
     // A15 - 카테고리별 메뉴(GET) - /api/v1/categories/{categoriesId}/menus -> 200, Menu[]
-    /*
     @Transactional(readOnly = true)
-    public List<MenuResponse> findMenusByCategory(Long id) {
+    public List<MenuResponse> findMenusByCategories(Long id) {
         validateId(id); // 카테고리 id 검증
-        getCategoryOrThrow(id); // 카테고리 존재 여부 검증
+        getCategoriesOrThrow(id); // 카테고리 존재 여부 검증
 
-        return this.menuRepository.findAllByCategoryIdOrderByIdAsc(id)
+        return this.menuRepository.findAllByCategoriesIdOrderByIdAsc(id)
                 .stream()
                 .map(MenuResponse::from)
                 .toList();
     }
-     */
 
     // 공통 조회 메서드
     // id가 없는 경우 -> CATEGORY_NOT_FOUND 커스텀 예외 던짐.
-    private Categories getCategoryOrThrow(Long id) {
+    private Categories getCategoriesOrThrow(Long id) {
         return categoriesRepository.findById(id).orElseThrow(() -> new CATEGORY_NOT_FOUND());
     }
 

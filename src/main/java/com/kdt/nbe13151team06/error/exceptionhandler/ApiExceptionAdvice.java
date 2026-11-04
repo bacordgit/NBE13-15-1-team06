@@ -1,15 +1,6 @@
 package com.kdt.nbe13151team06.error.exceptionhandler;
 
-import com.kdt.nbe13151team06.error.ADDRESS_MISMATCH;
-import com.kdt.nbe13151team06.error.CATEGORY_IN_USE;
-import com.kdt.nbe13151team06.error.CATEGORY_NAME_DUPLICATED;
-import com.kdt.nbe13151team06.error.CATEGORY_NOT_FOUND;
-import com.kdt.nbe13151team06.error.MENU_IN_USE;
-import com.kdt.nbe13151team06.error.MENU_NOT_FOUND;
-import com.kdt.nbe13151team06.error.MENU_UNAVAILABLE;
-import com.kdt.nbe13151team06.error.ORDER_NOT_CANCELLABLE;
-import com.kdt.nbe13151team06.error.ORDER_NOT_FOUND;
-import com.kdt.nbe13151team06.error.VALIDATION_ERROR;
+import com.kdt.nbe13151team06.error.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
@@ -25,9 +17,15 @@ public class ApiExceptionAdvice {
     @ExceptionHandler({
             VALIDATION_ERROR.class,
             MethodArgumentNotValidException.class,
+            // @Valid로 검증한 요청 본문이 규칙을 어길 때
             HttpMessageNotReadableException.class,
+            //JSON이 깨졌거나, 타입이 안 맞거나, 필수 값이 null일 때
             MissingServletRequestParameterException.class,
-            MethodArgumentTypeMismatchException.class
+            //?email=, ?keyword= 같은 필수 쿼리 파라미터가 빠졌을 때
+            MethodArgumentTypeMismatchException.class,
+            //숫자 자리에 문자가 들어오거나, 날짜 형식이 틀렸을 때
+            HandlerMethodValidationException.class
+            //@RequestParam, @PathVariable에 붙인 검증 규칙을 어길 때
     })
     public ResponseEntity<ApiError> handlerValidationError() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

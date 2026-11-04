@@ -52,7 +52,7 @@ public class Order {
     @Column(name = "totalAmount", nullable = false)
     private Long totalAmount;
 
-    @OneToMany(mappedBy = "orderId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItems> items = new ArrayList<>();
 
     public Order(String email, String address, String postcode,

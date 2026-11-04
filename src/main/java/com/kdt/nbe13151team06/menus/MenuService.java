@@ -55,12 +55,9 @@ public class MenuService {
     public List<MenuResponse> findByName(String name){
         List<MenuResponse>list=new ArrayList<>();
          for(Menus menu: menuRepository.findAllByOrderByIdAsc()){
-             if(menu.getName().equals(name)){
+             if(menu.getName().contains(name)){
                  list.add(toResponse(menu));
              }
-         }
-         if(list.isEmpty()){
-             throw new MENU_NOT_FOUND();
          }
          return list;
     }
@@ -71,9 +68,6 @@ public class MenuService {
         for (Menus menu : menuRepository.findAllByOrderByIdAsc()) {
             list.add(toResponse(menu));
         }
-        if(list.isEmpty()){
-            throw new MENU_NOT_FOUND();
-        }
         return list;
     }
     @Transactional(readOnly=true)
@@ -83,9 +77,6 @@ public class MenuService {
             if(menu.isAvailable()){
                 list.add(toResponse(menu));
             }
-        }
-        if(list.isEmpty()){
-            throw new MENU_NOT_FOUND();
         }
         return list;
     }

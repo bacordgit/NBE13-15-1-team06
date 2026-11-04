@@ -55,7 +55,7 @@ public class MenuService {
     public List<MenuResponse> findByName(String name){
         List<MenuResponse>list=new ArrayList<>();
          for(Menus menu: menuRepository.findAllByOrderByIdAsc()){
-             if(menu.getName().equals(name)){
+             if(menu.getName().contains(name)){
                  list.add(toResponse(menu));
              }
          }

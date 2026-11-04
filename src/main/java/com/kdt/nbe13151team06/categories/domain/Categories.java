@@ -21,4 +21,12 @@ public class Categories {
     @Column(nullable = false, unique = true, length = 20)
     private String name;
 
+    public void changeName(String name) {
+        this.name = name;
+    }
+
+    public Categories(String name) {
+        this.name = name;
+    }
+
 }

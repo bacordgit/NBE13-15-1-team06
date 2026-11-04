@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface OrderItemsRepository extends JpaRepository<OrderItems,Long> {
     boolean existsByMenu(Menus menu);
-    List<OrderItems> findByOrderIdIn(List<Order> orders);
+    List<OrderItems> findByOrderIn(List<Order> orders);
 }

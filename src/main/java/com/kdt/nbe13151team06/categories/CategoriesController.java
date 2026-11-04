@@ -2,7 +2,6 @@ package com.kdt.nbe13151team06.categories;
 
 import com.kdt.nbe13151team06.categories.dto.CategoriesRequest;
 import com.kdt.nbe13151team06.categories.dto.CategoriesResponse;
-import com.kdt.nbe13151team06.menus.MenuResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,7 @@ import java.util.List;
 @RequestMapping("/api/v1/categories")
 public class CategoriesController {
 
-    private CategoriesService categoriesService;
+    private final CategoriesService categoriesService;
 
     @Autowired
     public CategoriesController(CategoriesService categoriesService) {

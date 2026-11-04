@@ -1,6 +1,6 @@
 package com.kdt.nbe13151team06.orderItems;
 
-import com.kdt.nbe13151team06.menus.menus;
+import com.kdt.nbe13151team06.menus.Menus;
 import com.kdt.nbe13151team06.orders.Order;
 import jakarta.persistence.*;
 
@@ -17,7 +17,7 @@ public class OrderItems {
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="menuId",nullable=false)
-    menus menu;
+    Menus menu;
 
     @Column(name="menuName",nullable =false)
     String menuName;
@@ -34,7 +34,7 @@ public class OrderItems {
 
     }
 
-    public OrderItems(Order order, menus menu, String menuName, Integer unit_price, Integer quantity) {
+    public OrderItems(Order order, Menus menu, String menuName, Integer unit_price, Integer quantity) {
         this.order = order;
         this.menu = menu;
         this.menuName = menuName;
@@ -51,7 +51,7 @@ public class OrderItems {
         return order;
     }
 
-    public menus getMenuId() {
+    public Menus getMenuId() {
         return menu;
     }
 
@@ -75,7 +75,7 @@ public class OrderItems {
         this.order = order;
     }
 
-    public void setMenuId(menus menu) {
+    public void setMenuId(Menus menu) {
         this.menu = menu;
     }
 

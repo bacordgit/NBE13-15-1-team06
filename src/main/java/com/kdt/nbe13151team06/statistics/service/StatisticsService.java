@@ -1,16 +1,25 @@
 package com.kdt.nbe13151team06.statistics.service;
 
 import com.kdt.nbe13151team06.error.VALIDATION_ERROR;
+import com.kdt.nbe13151team06.orderItems.OrderItemRepository;
 import com.kdt.nbe13151team06.orderItems.OrderItems;
-import com.kdt.nbe13151team06.orderItems.OrderItemsRepository;
 import com.kdt.nbe13151team06.orders.Order;
 import com.kdt.nbe13151team06.orders.OrderRepository;
-import com.kdt.nbe13151team06.statistics.dto.*;
+import com.kdt.nbe13151team06.statistics.dto.CustomerStatisticsResponse;
+import com.kdt.nbe13151team06.statistics.dto.DeliveryBatchResponse;
+import com.kdt.nbe13151team06.statistics.dto.DeliveryItemResponse;
+import com.kdt.nbe13151team06.statistics.dto.MenuStatisticsResponse;
+import com.kdt.nbe13151team06.statistics.dto.OrderStatisticsResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 통계 관련 비즈니스 로직을 담당하는 서비스.
@@ -35,13 +44,13 @@ import java.util.*;
 public class StatisticsService {
 
     private final OrderRepository orderRepository;          // 주문 조회
-    private final OrderItemsRepository orderItemsRepository;  // 주문 상품(주문에 담긴 메뉴) 조회
+    private final OrderItemRepository orderItemRepository;  // 주문 상품(주문에 담긴 메뉴) 조회
 
     // 생성자 주입 (Spring이 Repository를 자동으로 넣어줌)
     public StatisticsService(OrderRepository orderRepository,
-                             OrderItemsRepository orderItemRepository) {
+                             OrderItemRepository orderItemRepository) {
         this.orderRepository = orderRepository;
-        this.orderItemsRepository = orderItemRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     // ============================================================
@@ -144,7 +153,7 @@ public class StatisticsService {
         // 주문이 없으면 DB 조회를 건너뛴다
         List<OrderItems> items = placedOrders.isEmpty()
                 ? List.of()
-                : orderItemsRepository.findByOrderIn(placedOrders);
+                : orderItemRepository.findByOrderIdIn(placedOrders);
 
         List<MenuStatisticsResponse> result = new ArrayList<>();
         // (메뉴ID + 단가 + 메뉴명)이 같은 상품끼리 묶어서 수량/금액을 합산
@@ -187,16 +196,18 @@ public class StatisticsService {
         List<DeliveryBatchResponse> result = new ArrayList<>();
 
         // 고객 한 명 = 배송 묶음 한 개
+        // Entry = 맵에서 키와 밸류를 쌍이 아닌 하나씩 꺼내기 가능
         for (Map.Entry<String, List<Order>> entry : ordersByEmail.entrySet()) {
-            String email = entry.getKey();
-            List<Order> customerOrders = entry.getValue();
-            Order first = customerOrders.get(0);  // 주소/우편번호는 첫 주문 기준
+            String email = entry.getKey(); // -> map.entey<String> 꺼냄
+            List<Order> customerOrders = entry.getValue(); // List<Order>꺼냄
+            Order first = customerOrders.get(0); // 주소만
 
             List<Long> orderIds = new ArrayList<>();          // 묶음에 포함된 주문 번호들
             List<OrderItems> batchItems = new ArrayList<>();  // 묶음에 포함된 모든 상품
 
             for (Order order : customerOrders) {
                 orderIds.add(order.getId());
+                // getOrDefault 값이 없으면 정한 값 줌
                 batchItems.addAll(itemsByOrderId.getOrDefault(order.getId(), List.of()));
             }
             orderIds.sort(null);  // 주문 번호 오름차순 (null = 자연 정렬)
@@ -220,13 +231,13 @@ public class StatisticsService {
 
 
     // ============================================================
-    // 내부에서만 쓰는 공통 도우미 메서드
+    // 내부에서만 쓰는 공통 메서드
     // ============================================================
 
     /** 날짜 검사: 연도가 2000 ~ 2099 범위를 벗어나면 VALIDATION_ERROR 발생 */
     private void validateDate(LocalDate date) {
         int year = date.getYear();
-        if (year < 2000 || year > 2099) {
+        if (year <= 2000 || year >= 2099) {
             throw new VALIDATION_ERROR();
         }
     }
@@ -253,13 +264,14 @@ public class StatisticsService {
      * 주문 상품들을 "주문 ID -> 상품 목록"으로 묶는다.
      * 주문마다 쿼리를 날리지 않고 IN 쿼리 1번으로 가져온다 (N+1 문제 방지).
      */
+
     private Map<Long, List<OrderItems>> groupItemsByOrderId(List<Order> orders) {
         Map<Long, List<OrderItems>> map = new LinkedHashMap<>();
         if (orders.isEmpty()) {
             return map;
         }
-        // IN 절로 한 번에 조회 후, 주문 ID별로 분류
-        for (OrderItems item : orderItemsRepository.findByOrderIn(orders)) {
+        // IN 절로 한 번에 조회 후, 주문 ID별로 분류 -> n+1 방지
+        for (OrderItems item : orderItemRepository.findByOrderIdIn(orders)) {
             map.computeIfAbsent(item.getOrderId().getId(), k -> new ArrayList<>()).add(item);
         }
         return map;

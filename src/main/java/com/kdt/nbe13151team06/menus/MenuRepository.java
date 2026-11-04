@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface menuRepository extends JpaRepository<menus,Long> {
-List<menus> findAllByOrderByIdAsc();
+public interface MenuRepository extends JpaRepository<Menus,Long> {
+List<Menus> findAllByOrderByIdAsc();
 }

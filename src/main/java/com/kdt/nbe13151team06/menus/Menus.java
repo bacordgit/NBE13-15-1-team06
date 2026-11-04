@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name="menus")
-public class menus {
+public class Menus {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     Long id;
@@ -26,11 +26,11 @@ public class menus {
     @JoinColumn(name="category_id",nullable=false)
     Categories categories;
 
-    public menus(){
+    public Menus(){
 
     }
 
-    public menus(Categories categories,String name, int price, String description, boolean available) {
+    public Menus(Categories categories,String name, int price, String description, boolean available) {
         this.name = name;
         this.price = price;
         this.description = description;

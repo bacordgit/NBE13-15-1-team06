@@ -10,31 +10,31 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/menus")
-public class menuController {
-    private final menuService menuService;
+public class MenuController {
+    private final MenuService menuService;
     @Autowired
-    public menuController(menuService menuService) {
+    public MenuController(MenuService menuService) {
         this.menuService = menuService;
     }
 
     @GetMapping
-    public List<menuResponse> getMenus(){
+    public List<MenuResponse> getMenus(){
         return this.menuService.findAll();
     }
 
     @GetMapping("/{menuId}")
-    public menuResponse getMenuById(@PathVariable("menuId") Long id){
+    public MenuResponse getMenuById(@PathVariable("menuId") Long id){
       return menuService.findOne(id);
     }
 
     @PostMapping
-    public ResponseEntity<menuResponse> create(@Valid @RequestBody menuCURequest menuCreateRequest){
-        menuResponse res=menuService.create(menuCreateRequest,true);
+    public ResponseEntity<MenuResponse> create(@Valid @RequestBody MenuCURequest menuCreateRequest){
+        MenuResponse res=menuService.create(menuCreateRequest,true);
         URI location=URI.create("/api/v1/menus/"+res.id());
         return ResponseEntity.created(location).body(res);
     }
     @PutMapping("/{menuId}")
-    public menuResponse update(@PathVariable("menuId") Long id,@Valid @RequestBody menuCURequest menuUpdateRequest){
+    public MenuResponse update(@PathVariable("menuId") Long id,@Valid @RequestBody MenuCURequest menuUpdateRequest){
         return this.menuService.update(id,menuUpdateRequest);
     }
     @DeleteMapping("/{menuId}")
@@ -44,17 +44,17 @@ public class menuController {
     }
 
     @GetMapping("/available")
-    public List<menuResponse> getAvailable(){
+    public List<MenuResponse> getAvailable(){
         return this.menuService.findByAvailable();
     }
 
     @GetMapping("/search")
-    public List<menuResponse> getName(@RequestParam String keyword){
+    public List<MenuResponse> getName(@RequestParam String keyword){
         return this.menuService.findByName(keyword);
     }
 
     @PutMapping("/{menuId}/availability")
-    public menuResponse changeAvailable(@PathVariable("menuId") Long id, @Valid @RequestBody menuavailableRequest menuavailableRequest){
+    public MenuResponse changeAvailable(@PathVariable("menuId") Long id, @Valid @RequestBody MenuavailableRequest menuavailableRequest){
        return this.menuService.changeAvailable(id,menuavailableRequest);
     }
 

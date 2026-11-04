@@ -135,6 +135,9 @@ public class OrderService {
     }
 
     private Order find(Long id) {
+        if (id == null || id < 1) {
+            throw new ValidationException(); // ID는 1 이상 (명세)
+        }
         return this.orderRepository.findById(id)
                 .orElseThrow(() -> new ORDER_NOT_FOUND(""));
     }

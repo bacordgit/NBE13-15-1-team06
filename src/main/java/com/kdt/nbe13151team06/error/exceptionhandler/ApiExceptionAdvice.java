@@ -1,4 +1,4 @@
-package com.kdt.nbe13151team06.exception;
+package com.kdt.nbe13151team06.error.exceptionhandler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

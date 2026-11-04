@@ -5,7 +5,7 @@ import com.kdt.nbe13151team06.orders.Order;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="orderItems")
+@Table(name = "orderItems")
 public class OrderItems {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

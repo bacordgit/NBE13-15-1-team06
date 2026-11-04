@@ -144,7 +144,7 @@ public class StatisticsService {
         // 주문이 없으면 DB 조회를 건너뛴다
         List<OrderItems> items = placedOrders.isEmpty()
                 ? List.of()
-                : orderItemsRepository.findByOrderIdIn(placedOrders);
+                : orderItemsRepository.findByOrderIn(placedOrders);
 
         List<MenuStatisticsResponse> result = new ArrayList<>();
         // (메뉴ID + 단가 + 메뉴명)이 같은 상품끼리 묶어서 수량/금액을 합산
@@ -259,7 +259,7 @@ public class StatisticsService {
             return map;
         }
         // IN 절로 한 번에 조회 후, 주문 ID별로 분류
-        for (OrderItems item : orderItemsRepository.findByOrderIdIn(orders)) {
+        for (OrderItems item : orderItemsRepository.findByOrderIn(orders)) {
             map.computeIfAbsent(item.getOrderId().getId(), k -> new ArrayList<>()).add(item);
         }
         return map;

@@ -59,9 +59,6 @@ public class MenuService {
                  list.add(toResponse(menu));
              }
          }
-         if(list.isEmpty()){
-             throw new MENU_NOT_FOUND();
-         }
          return list;
     }
 
@@ -70,9 +67,6 @@ public class MenuService {
         List<MenuResponse> list = new ArrayList<>();
         for (Menus menu : menuRepository.findAllByOrderByIdAsc()) {
             list.add(toResponse(menu));
-        }
-        if(list.isEmpty()){
-            throw new MENU_NOT_FOUND();
         }
         return list;
     }
@@ -83,9 +77,6 @@ public class MenuService {
             if(menu.isAvailable()){
                 list.add(toResponse(menu));
             }
-        }
-        if(list.isEmpty()){
-            throw new MENU_NOT_FOUND();
         }
         return list;
     }

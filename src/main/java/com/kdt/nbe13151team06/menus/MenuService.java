@@ -91,7 +91,7 @@ public class MenuService {
     @Transactional
     public MenuResponse changeAvailable(Long menuId,MenuavailableRequest request){
         Menus menu=menuRepository.findById(menuId).orElseThrow(() -> new MENU_NOT_FOUND());
-        menu.setAvailable(request.availability());
+        menu.setAvailable(request.available());
         menuRepository.save(menu);
         return toResponse(menu);
     }

@@ -1,25 +1,16 @@
 package com.kdt.nbe13151team06.statistics.service;
 
 import com.kdt.nbe13151team06.error.VALIDATION_ERROR;
-import com.kdt.nbe13151team06.orderItems.OrderItemRepository;
 import com.kdt.nbe13151team06.orderItems.OrderItems;
+import com.kdt.nbe13151team06.orderItems.OrderItemsRepository;
 import com.kdt.nbe13151team06.orders.Order;
 import com.kdt.nbe13151team06.orders.OrderRepository;
-import com.kdt.nbe13151team06.statistics.dto.CustomerStatisticsResponse;
-import com.kdt.nbe13151team06.statistics.dto.DeliveryBatchResponse;
-import com.kdt.nbe13151team06.statistics.dto.DeliveryItemResponse;
-import com.kdt.nbe13151team06.statistics.dto.MenuStatisticsResponse;
-import com.kdt.nbe13151team06.statistics.dto.OrderStatisticsResponse;
+import com.kdt.nbe13151team06.statistics.dto.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * 통계 관련 비즈니스 로직을 담당하는 서비스.
@@ -44,11 +35,11 @@ import java.util.TreeMap;
 public class StatisticsService {
 
     private final OrderRepository orderRepository;          // 주문 조회
-    private final OrderItemRepository orderItemRepository;  // 주문 상품(주문에 담긴 메뉴) 조회
+    private final OrderItemsRepository orderItemRepository;  // 주문 상품(주문에 담긴 메뉴) 조회
 
     // 생성자 주입 (Spring이 Repository를 자동으로 넣어줌)
     public StatisticsService(OrderRepository orderRepository,
-                             OrderItemRepository orderItemRepository) {
+                             OrderItemsRepository orderItemRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
     }
@@ -153,7 +144,7 @@ public class StatisticsService {
         // 주문이 없으면 DB 조회를 건너뛴다
         List<OrderItems> items = placedOrders.isEmpty()
                 ? List.of()
-                : orderItemRepository.findByOrderIdIn(placedOrders);
+                : orderItemRepository.findByOrderIn(placedOrders);
 
         List<MenuStatisticsResponse> result = new ArrayList<>();
         // (메뉴ID + 단가 + 메뉴명)이 같은 상품끼리 묶어서 수량/금액을 합산
@@ -271,7 +262,7 @@ public class StatisticsService {
             return map;
         }
         // IN 절로 한 번에 조회 후, 주문 ID별로 분류 -> n+1 방지
-        for (OrderItems item : orderItemRepository.findByOrderIdIn(orders)) {
+        for (OrderItems item : orderItemRepository.findByOrderIn(orders)) {
             map.computeIfAbsent(item.getOrderId().getId(), k -> new ArrayList<>()).add(item);
         }
         return map;

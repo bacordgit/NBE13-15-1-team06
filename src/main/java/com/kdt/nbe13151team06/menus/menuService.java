@@ -7,7 +7,6 @@ import com.kdt.nbe13151team06.error.MENU_IN_USE;
 import com.kdt.nbe13151team06.error.MenuNotFoundException;
 import com.kdt.nbe13151team06.orderItems.orderItemsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;

@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name="orderItems")
-public class orderItems {
+public class OrderItems {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -30,11 +30,11 @@ public class orderItems {
 
     @Column(name="lineAmount",nullable=false)
     Integer line_amount;
-    public orderItems(){
+    public OrderItems(){
 
     }
 
-    public orderItems(Order order, menus menu, String menuName, Integer unit_price, Integer quantity) {
+    public OrderItems(Order order, menus menu, String menuName, Integer unit_price, Integer quantity) {
         this.order = order;
         this.menu = menu;
         this.menuName = menuName;

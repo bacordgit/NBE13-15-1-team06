@@ -1,6 +1,6 @@
 package com.kdt.nbe13151team06.orders;
 
-import com.kdt.nbe13151team06.orderItems.orderItems;
+import com.kdt.nbe13151team06.orderItems.OrderItems;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -53,7 +53,7 @@ public class Order {
     private Long totalAmount;
 
     @OneToMany(mappedBy = "orderId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<orderItems> items = new ArrayList<>();
+    private List<OrderItems> items = new ArrayList<>();
 
     public Order(String email, String address, String postcode,
                  LocalDate shippingDate, LocalDateTime now) {
@@ -80,7 +80,7 @@ public class Order {
         this.memo = memo;
         this.updatedAt = now;
     }
-    public void addItem(orderItems item) {
+    public void addItem(OrderItems item) {
         this.items.add(item);
         this.totalAmount = this.items.stream()
                 .mapToLong(i -> i.getLine_amount())

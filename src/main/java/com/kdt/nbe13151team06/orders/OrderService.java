@@ -1,15 +1,15 @@
 package com.kdt.nbe13151team06.orders;
 
 import com.kdt.nbe13151team06.error.ADDRESS_MISMATCH;
-import com.kdt.nbe13151team06.error.MenuNotFoundException;
+import com.kdt.nbe13151team06.error.MENU_NOT_FOUND;
 import com.kdt.nbe13151team06.error.ORDER_NOT_FOUND;
-import com.kdt.nbe13151team06.error.ValidationException;
-import com.kdt.nbe13151team06.exception.MENU_UNAVAILABLE;
-import com.kdt.nbe13151team06.exception.ORDER_NOT_CANCELLABLE;
+import com.kdt.nbe13151team06.error.VALIDATION_ERROR;
+import com.kdt.nbe13151team06.error.MENU_UNAVAILABLE;
+import com.kdt.nbe13151team06.error.ORDER_NOT_CANCELLABLE;
 import com.kdt.nbe13151team06.menus.menuRepository;
 import com.kdt.nbe13151team06.menus.menus;
 import com.kdt.nbe13151team06.orderItems.OrderItemResponse;
-import com.kdt.nbe13151team06.orderItems.orderItems;
+import com.kdt.nbe13151team06.orderItems.OrderItems;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +42,7 @@ public class OrderService {
         for (int i = 0; i < items.size(); i++) {
             for (int j = i + 1; j < items.size(); j++) {
                 if (items.get(i).menuId().equals(items.get(j).menuId())) {
-                    throw new ValidationException();
+                    throw new VALIDATION_ERROR();
                 }
             }
         }
@@ -51,7 +51,7 @@ public class OrderService {
         List<menus> found = new ArrayList<>();
         for (OrderItemRequest item : items) {
             menus menu = this.menuRepo.findById(item.menuId())
-                    .orElseThrow(() -> new MenuNotFoundException());
+                    .orElseThrow(() -> new MENU_NOT_FOUND());
             found.add(menu);
         }
 
@@ -77,7 +77,7 @@ public class OrderService {
 
         for (int i = 0; i < items.size(); i++) {
             menus menu = found.get(i);
-            order.addItem(new orderItems(order, menu, menu.getName(), menu.getPrice(),items.get(i).quantity()));
+            order.addItem(new OrderItems(order, menu, menu.getName(), menu.getPrice(),items.get(i).quantity()));
         }
         Order saved = this.orderRepository.save(order);
         return toResponse(saved);
@@ -127,7 +127,7 @@ public class OrderService {
     public OrderResponse reorder(Long id) {
         Order old = find(id);
         List<OrderItemRequest> items = new ArrayList<>();
-        for (orderItems item : old.getItems()) {
+        for (OrderItems item : old.getItems()) {
             items.add(new OrderItemRequest(item.getMenuId().getId(), item.getQuantity()));
         }
         return create(new OrderCreateRequest(old.getEmail(), old.getAddress(),
@@ -136,7 +136,7 @@ public class OrderService {
 
     private Order find(Long id) {
         if (id == null || id < 1) {
-            throw new ValidationException(); // ID는 1 이상 (명세)
+            throw new VALIDATION_ERROR(); // ID는 1 이상 (명세)
         }
         return this.orderRepository.findById(id)
                 .orElseThrow(() -> new ORDER_NOT_FOUND(""));
@@ -145,7 +145,7 @@ public class OrderService {
     //order 엔티티를 orderResponse 로 보낼 dto로 바꾸는 과정임
     private OrderResponse toResponse(Order o) {
         List<OrderItemResponse> items = new ArrayList<>();
-        for (orderItems item : o.getItems()) {
+        for (OrderItems item : o.getItems()) {
             items.add(toItemResponse(item));
         }
         return new OrderResponse(
@@ -173,7 +173,7 @@ public class OrderService {
     }
 
     // orderItems 엔티티를 orderItemResponse 로 보낼 dto로 바꾸는 과정
-    private OrderItemResponse toItemResponse(orderItems i) {
+    private OrderItemResponse toItemResponse(OrderItems i) {
         return new OrderItemResponse(
                 i.getMenuId().getId(),
                 i.getMenuName(),

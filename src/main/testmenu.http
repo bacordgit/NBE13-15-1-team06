@@ -46,3 +46,17 @@ Content-Type: application/json
 }
 
 ###
+//입력오류 (A08 메뉴 등록시 price가 1000000을 넘겼을 때)
+POST http://127.0.0.1:8080/api/v1/menus
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "name": "new drinks",
+  "price": 10000001,
+  "description": "새로운 커피"
+}
+###
+//대상 없음(A07 메뉴 상세, 없는 번호 조회)
+GET http://127.0.0.1:8080/api/v1/menus/999999
+###

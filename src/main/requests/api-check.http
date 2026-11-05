@@ -1,0 +1,108 @@
+### A06 전체 메뉴
+GET http://127.0.0.1:8080/api/v1/menus
+
+### A07 메뉴 상세
+GET http://127.0.0.1:8080/api/v1/menus/1
+
+### A08 메뉴 등록
+POST http://127.0.0.1:8080/api/v1/menus
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "name": "new drinks",
+  "price": 4000,
+  "description": "새로운 커피"
+}
+
+### A09 일반 메뉴 수정
+PUT http://127.0.0.1:8080/api/v1/menus/5
+Content-Type: application/json
+
+{
+  "categoryId": 2,
+  "name": "old drinks",
+  "price": 4500,
+  "description": "새롭지 않은 커피"
+}
+
+### A10 메뉴 삭제
+DELETE http://127.0.0.1:8080/api/v1/menus/5
+
+### A11 주문 접수 - 응답의 id 를 아래 {id} 자리에 쓴다
+POST http://localhost:8080/api/v1/orders
+Content-Type: application/json
+
+{"email":"buyer@example.com","address":"서울시 실습로 10 101호","postcode":"01234","items":[{"menuId":1,"quantity":2},{"menuId":2,"quantity":1}]}
+
+### A12 이메일별 주문 목록
+GET http://localhost:8080/api/v1/orders?email=buyer@example.com
+
+### A13 주문 상세
+GET http://localhost:8080/api/v1/orders/1
+
+### A16 주문 취소
+POST http://localhost:8080/api/v1/orders/1/cancel
+
+### A19 판매 중 메뉴
+GET http://127.0.0.1:8080/api/v1/menus/available
+
+### A20 메뉴명 검색
+GET http://127.0.0.1:8080/api/v1/menus/search?keyword=Sidamo
+
+### A21 판매 여부 변경
+PUT http://127.0.0.1:8080/api/v1/menus/1/availability
+Content-Type: application/json
+
+{
+  "available" : false
+}
+
+### A22 주문 메모 수정
+PUT http://localhost:8080/api/v1/orders/1/memo
+Content-Type: application/json
+
+
+{"memo":"문 앞에 놓아주세요"}
+
+### A23 재주문
+POST http://localhost:8080/api/v1/orders/1/reorder
+
+
+
+
+
+###입력오류(400) (A08 메뉴 등록시 price가 1000000을 넘겼을 때)
+POST http://127.0.0.1:8080/api/v1/menus
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "name": "new drinks",
+  "price": 10000001,
+  "description": "새로운 커피"
+}
+
+### 이메일 형식 오류 (400)
+POST http://localhost:8080/api/v1/orders
+Content-Type: application/json
+
+{"email":"not-an-email","address":"서울시 실습로 10 101호","postcode":"01234","items":[{"menuId":1,"quantity":1}]}
+
+
+
+
+###대상 없음(404)(A07 메뉴 상세, 없는 번호 조회)
+GET http://127.0.0.1:8080/api/v1/menus/999999
+
+
+
+
+### 배송지 불일치 (409) - 같은 이메일, 같은 배송일, 다른 주소
+POST http://localhost:8080/api/v1/orders
+Content-Type: application/json
+
+{"email":"buyer@example.com","address":"부산시 다른길 99","postcode":"01234","items":[{"menuId":1,"quantity":1}]}
+
+
+###

@@ -1,0 +1,48 @@
+//A06 전체 메뉴
+GET http://127.0.0.1:8080/api/v1/menus
+###
+//A07 메뉴 상세
+GET http://127.0.0.1:8080/api/v1/menus/1
+###
+//A08 메뉴 등록
+POST http://127.0.0.1:8080/api/v1/menus
+Content-Type: application/json
+
+{
+  "categoryId": 1,
+  "name": "new drinks",
+  "price": 4000,
+  "description": "새로운 커피"
+}
+
+###
+//A09 일반 메뉴 수정
+PUT http://127.0.0.1:8080/api/v1/menus/5
+Content-Type: application/json
+
+{
+  "categoryId": 2,
+  "name": "old drinks",
+  "price": 4500,
+  "description": "새롭지 않은 커피"
+}
+
+###
+//A10 메뉴 삭제
+DELETE http://127.0.0.1:8080/api/v1/menus/5
+###
+//A19 판매 중 메뉴
+GET http://127.0.0.1:8080/api/v1/menus/available
+###
+//A20 메뉴명 검색
+GET http://127.0.0.1:8080/api/v1/menus/search?keyword=Sidamo
+###
+//A21 판매 여부 변경
+PUT http://127.0.0.1:8080/api/v1/menus/1/availability
+Content-Type: application/json
+
+{
+  "available" : false
+}
+
+###

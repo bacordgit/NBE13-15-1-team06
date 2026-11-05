@@ -25,6 +25,7 @@ public class MenuService {
         this.orderItemsRepository = orderItemsRepository;
     }
 
+    //A08 메뉴 생성
     @Transactional
     public MenuResponse create(MenuCURequest menuCreateRequest, boolean available) {
         Categories category = categoriesRepository.findById(menuCreateRequest.categoryId()).orElseThrow(() -> new CATEGORY_NOT_FOUND());
@@ -34,6 +35,7 @@ public class MenuService {
 
     }
 
+    //A09 메뉴 수정
     @Transactional
     public MenuResponse update(Long menuId, MenuCURequest menuUpdateRequest) {
         Menus menu = menuRepository.findById(menuId).orElseThrow(() -> new MENU_NOT_FOUND());
@@ -46,11 +48,14 @@ public class MenuService {
         return toResponse(menu);
     }
 
+    //A07 id로 메뉴 조회 찾는 메뉴가 없으면 throw MENU_NOT_FOUND()
     @Transactional(readOnly = true)
     public MenuResponse findOne(Long menuId) {
         Menus menu = menuRepository.findById(menuId).orElseThrow(() -> new MENU_NOT_FOUND());
         return toResponse(menu);
     }
+
+    //A20 이름으로 메뉴 찾기-  모든 메뉴 조회 후 이름이 포함되는지 확인 포함되는 menu들을 반환
     @Transactional(readOnly=true)
     public List<MenuResponse> findByName(String name){
         List<MenuResponse>list=new ArrayList<>();
@@ -61,7 +66,7 @@ public class MenuService {
          }
          return list;
     }
-
+    //A06 전체 메뉴 조회- 메뉴들 전체 조회한 후 리스트로 반환
     @Transactional(readOnly=true)
     public List<MenuResponse> findAll() {
         List<MenuResponse> list = new ArrayList<>();
@@ -70,6 +75,7 @@ public class MenuService {
         }
         return list;
     }
+    //A19 available이 true인 메뉴 조회 - 메뉴들 전체 조회한 후 available이 true인 menu 리스트로 반환
     @Transactional(readOnly=true)
     public List<MenuResponse> findByAvailable() {
         List<MenuResponse>list=new ArrayList<>();
@@ -80,7 +86,7 @@ public class MenuService {
         }
         return list;
     }
-
+    //A10 메뉴 삭제 - id로 메뉴를 찾고 없으면 MENU_NOT_FOUND 반환, 있으면 삭제
     @Transactional
     public void delete(Long menuId) {
         Menus menu = menuRepository.findById(menuId).orElseThrow(() -> new MENU_NOT_FOUND());
@@ -88,6 +94,7 @@ public class MenuService {
             throw new MENU_IN_USE();
         menuRepository.delete(menu);
     }
+    //A21 판매 여부 변경 -id로 메뉴 찾고 request에 따라 판매 여부 변경
     @Transactional
     public MenuResponse changeAvailable(Long menuId,MenuavailableRequest request){
         Menus menu=menuRepository.findById(menuId).orElseThrow(() -> new MENU_NOT_FOUND());

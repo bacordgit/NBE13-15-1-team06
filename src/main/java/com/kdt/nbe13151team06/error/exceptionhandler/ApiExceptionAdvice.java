@@ -4,20 +4,21 @@ import com.kdt.nbe13151team06.error.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class ApiExceptionAdvice {
 
     @ExceptionHandler({
             VALIDATION_ERROR.class,
-            MethodArgumentNotValidException.class,
-            // @Valid로 검증한 요청 본문이 규칙을 어길 때
             HttpMessageNotReadableException.class,
             //JSON이 깨졌거나, 타입이 안 맞거나, 필수 값이 null일 때
             MissingServletRequestParameterException.class,
@@ -30,6 +31,18 @@ public class ApiExceptionAdvice {
     public ResponseEntity<ApiError> handlerValidationError() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ApiError("VALIDATION_ERROR", "입력값을 확인해 주세요."));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handlerBodyValidationError(MethodArgumentNotValidException e) {
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        for (FieldError error : e.getBindingResult().getFieldErrors()) {
+            // items[0].quantity 같은 경로는 items 로 줄인다
+            String name = error.getField().split("[\\[.]")[0];
+            fieldErrors.putIfAbsent(name, error.getDefaultMessage());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiError("VALIDATION_ERROR", "입력값을 확인해 주세요.", fieldErrors));
     }
 
     @ExceptionHandler(CATEGORY_NOT_FOUND.class)

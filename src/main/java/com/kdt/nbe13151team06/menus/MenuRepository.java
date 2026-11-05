@@ -8,4 +8,6 @@ public interface MenuRepository extends JpaRepository<Menus,Long> {
     List<Menus> findAllByOrderByIdAsc();
 
     List<Menus> findAllByCategoriesIdOrderByIdAsc(Long id);
+
+    boolean existsByCategoriesId(Long id);
 }

@@ -23,21 +23,21 @@ public class StatisticsController {
         this.statisticsService = statisticsService;
     }
 
-    // A17
+    // A17 - 접수일별 주문 통계
     @GetMapping("/orders")
     public OrderStatisticsResponse getOrderStatistics(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return statisticsService.getOrderStatistics(date);
     }
 
-    // A18
+    // A18 - 접수일별 메뉴 통계
     @GetMapping("/menus")
     public List<MenuStatisticsResponse> getMenuStatistics(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return statisticsService.getMenuStatistics(date);
     }
 
-    // A24
+    // A24 - 접수일별 고객 통계
     @GetMapping("/customers")
     public List<CustomerStatisticsResponse> getCustomerStatistics(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {

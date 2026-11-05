@@ -19,7 +19,7 @@ public class DeliveryBatchController {
         this.statisticsService = statisticsService;
     }
 
-    // A14
+    // A14 - 배송 묶음
     @GetMapping("/api/v1/delivery-batches")
     public List<DeliveryBatchResponse> getDeliveryBatches(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate shippingDate) {

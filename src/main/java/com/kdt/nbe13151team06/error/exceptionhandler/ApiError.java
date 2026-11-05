@@ -1,4 +1,10 @@
 package com.kdt.nbe13151team06.error.exceptionhandler;
 
-public record ApiError(String code, String message) {
+import java.util.Map;
+
+public record ApiError(String code, String message, Map<String, String> fieldErrors) {
+
+    public ApiError(String code, String message) {
+        this(code, message, Map.of());
+    }
 }

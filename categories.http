@@ -1,0 +1,56 @@
+@baseUrl = http://localhost:8080
+
+### A01 - 카테고리 목록 - 200, Category[]
+GET {{baseUrl}}/api/v1/categories
+Accept: application/json
+
+### A02 - 카테고리 상세 - 200, Category
+GET {{baseUrl}}/api/v1/categories/2
+Accept: application/json
+
+### A03 - 카테고리 등록 - 201, Category
+POST {{baseUrl}}/api/v1/categories
+Content-Type: application/json
+Accept: application/json
+
+{"name": "디카페인"}
+
+### A04 - 카테고리 수정 - 200, Category
+PUT {{baseUrl}}/api/v1/categories/4
+Content-Type: application/json
+Accept: application/json
+
+{"name": "티"}
+
+### A05 - 카테고리 삭제 - 204, 빈 본문
+DELETE {{baseUrl}}/api/v1/categories/4
+
+### A15 - 카테고리별 메뉴 - 200, Menu[]
+GET {{baseUrl}}/api/v1/1/menus
+Accept: application/json
+
+### 400, VALIDATION_ERROR, 입력값을 확인해 주세요. name = null 혹은 name > 20
+POST {{baseUrl}}/api/v1/categories
+Content-Type: application/json
+Accept: application/json
+
+{"name": "123456789123456789123"}
+
+### 404, CATEGORY_NOT_FOUND, 카테고리를 찾을 수 없습니다. categoryId가 없는 번호
+GET {{baseUrl}}/api/v1/categories/99
+Accept: application/json
+
+### 409, CATEGORY_NAME_DUPLICATED, 같은 이름의 카테고리가 이미 있습니다. 카테고리 생성 name 중복
+POST {{baseUrl}}/api/v1/categories
+Content-Type: application/json
+Accept: application/json
+
+{"name": "싱글오리진"}
+
+
+### 메뉴 상세, categoryId - 1 확인
+GET {{baseUrl}}/api/v1/menus
+Accept: application/json
+
+### 409, CATEGORY_IN_USE, 메뉴가 등록된 카테고리는 삭제할 수 없습니다. categoryId 1번은 싱글오리진
+DELETE {{baseUrl}}/api/v1/categories/1

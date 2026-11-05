@@ -3,6 +3,7 @@ package com.kdt.nbe13151team06.categories;
 import com.kdt.nbe13151team06.categories.domain.Categories;
 import com.kdt.nbe13151team06.categories.dto.CategoriesRequest;
 import com.kdt.nbe13151team06.categories.dto.CategoriesResponse;
+import com.kdt.nbe13151team06.error.CATEGORY_IN_USE;
 import com.kdt.nbe13151team06.error.CATEGORY_NAME_DUPLICATED;
 import com.kdt.nbe13151team06.error.CATEGORY_NOT_FOUND;
 import com.kdt.nbe13151team06.error.VALIDATION_ERROR;
@@ -92,10 +93,9 @@ public class CategoriesService {
         Categories category = getCategoriesOrThrow(id);
 
         // menuRepository에서 category 사용중인지 확인
-        // menuRepository에 existsByCategoryId 추가
-//        if(menuRepository.existsByCategoryId(id){
-//            throw new CATEGORY_IN_USE("메뉴가 등록된 카테고리는 삭제할 수 없습니다.");
-//        }
+        if(menuRepository.existsByCategoriesId(id)){
+            throw new CATEGORY_IN_USE("메뉴가 등록된 카테고리는 삭제할 수 없습니다.");
+        }
 
         categoriesRepository.delete(category);
     }

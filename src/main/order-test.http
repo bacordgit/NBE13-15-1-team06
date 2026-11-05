@@ -1,0 +1,47 @@
+### 주문 접수 (A11) - 응답의 id 를 아래 {id} 자리에 쓴다
+POST http://localhost:8080/api/v1/orders
+Content-Type: application/json
+
+{"email":"buyer@example.com","address":"서울시 실습로 10 101호","postcode":"01234","items":[{"menuId":1,"quantity":2},{"menuId":2,"quantity":1}]}
+
+### 이메일별 주문 목록 (A12)
+GET http://localhost:8080/api/v1/orders?email=buyer@example.com
+
+### 주문 상세 (A13)
+GET http://localhost:8080/api/v1/orders/1
+
+### 주문 메모 수정 (A22)
+PUT http://localhost:8080/api/v1/orders/1/memo
+Content-Type: application/json
+
+{"memo":"문 앞에 놓아주세요"}
+
+### 재주문 (A23)
+POST http://localhost:8080/api/v1/orders/1/reorder
+
+### 배송지 불일치 (409) - 같은 이메일, 같은 배송일, 다른 주소
+POST http://localhost:8080/api/v1/orders
+Content-Type: application/json
+
+{"email":"buyer@example.com","address":"부산시 다른길 99","postcode":"01234","items":[{"menuId":1,"quantity":1}]}
+
+### 이메일 형식 오류 (400)
+POST http://localhost:8080/api/v1/orders
+Content-Type: application/json
+
+{"email":"not-an-email","address":"서울시 실습로 10 101호","postcode":"01234","items":[{"menuId":1,"quantity":1}]}
+
+### 수량 오류 (400)
+POST http://localhost:8080/api/v1/orders
+Content-Type: application/json
+
+{"email":"buyer@example.com","address":"서울시 실습로 10 101호","postcode":"01234","items":[{"menuId":1,"quantity":21}]}
+
+### 없는 주문 조회 (404)
+GET http://localhost:8080/api/v1/orders/999999
+
+### 주문 취소 (A16)
+POST http://localhost:8080/api/v1/orders/1/cancel
+
+### 이미 취소된 주문 재취소 (200)
+POST http://localhost:8080/api/v1/orders/1/cancel

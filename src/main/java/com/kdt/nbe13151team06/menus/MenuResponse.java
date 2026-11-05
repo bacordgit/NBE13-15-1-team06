@@ -1,7 +1,6 @@
 package com.kdt.nbe13151team06.menus;
 
-import com.kdt.nbe13151team06.categories.domain.Categories;
-import com.kdt.nbe13151team06.categories.dto.CategoriesResponse;
+
 //메뉴 응답 dto
 public record MenuResponse(Long id, Long categoryId, String name, int price, String description, boolean available) {
 

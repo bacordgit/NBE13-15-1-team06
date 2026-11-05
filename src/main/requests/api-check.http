@@ -1,5 +1,32 @@
+@baseUrl = http://localhost:8080
+
+### A01 - 카테고리 목록 - 200, Category[]
+GET {{baseUrl}}/api/v1/categories
+Accept: application/json
+
+### A02 - 카테고리 상세 - 200, Category
+GET {{baseUrl}}/api/v1/categories/2
+Accept: application/json
+
+### A03 - 카테고리 등록 - 201, Category
+POST {{baseUrl}}/api/v1/categories
+Content-Type: application/json
+Accept: application/json
+
+{"name": "디카페인"}
+
+### A04 - 카테고리 수정 - 200, Category
+PUT {{baseUrl}}/api/v1/categories/3
+Content-Type: application/json
+Accept: application/json
+
+{"name": "티"}
+
+### A05 - 카테고리 삭제 - 204, 빈 본문
+DELETE {{baseUrl}}/api/v1/categories/3
+
 ### A06 전체 메뉴
-GET http://127.0.0.1:8080/api/v1/menus
+GET {{baseUrl}}/api/v1/menus
 
 ### A07 메뉴 상세
 GET http://127.0.0.1:8080/api/v1/menus/1
@@ -16,7 +43,7 @@ Content-Type: application/json
 }
 
 ### A09 일반 메뉴 수정
-PUT http://127.0.0.1:8080/api/v1/menus/5
+PUT {{baseUrl}}/api/v1/menus/5
 Content-Type: application/json
 
 {
@@ -27,31 +54,47 @@ Content-Type: application/json
 }
 
 ### A10 메뉴 삭제
-DELETE http://127.0.0.1:8080/api/v1/menus/5
+DELETE {{baseUrl}}/api/v1/menus/5
 
 ### A11 주문 접수 - 응답의 id 를 아래 {id} 자리에 쓴다
-POST http://localhost:8080/api/v1/orders
+POST {{baseUrl}}/api/v1/orders
 Content-Type: application/json
 
 {"email":"buyer@example.com","address":"서울시 실습로 10 101호","postcode":"01234","items":[{"menuId":1,"quantity":2},{"menuId":2,"quantity":1}]}
 
 ### A12 이메일별 주문 목록
-GET http://localhost:8080/api/v1/orders?email=buyer@example.com
+GET {{baseUrl}}/api/v1/orders?email=buyer@example.com
 
 ### A13 주문 상세
-GET http://localhost:8080/api/v1/orders/1
+GET {{baseUrl}}/api/v1/orders/1
+
+### A14 배송 묶음 - 정상
+# 배송일 배송 박스 목록
+GET {{baseUrl}}/api/v1/delivery-batches?shippingDate=2026-11-05
+
+### A15 - 카테고리별 메뉴 - 200, Menu[]
+GET {{baseUrl}}/api/v1/1/menus
+Accept: application/json
 
 ### A16 주문 취소
-POST http://localhost:8080/api/v1/orders/1/cancel
+POST {{baseUrl}}/api/v1/orders/1/cancel
+
+### A17 주문 통계 - 정상
+# 접수일 주문 전체 통계 (취소도 포함)
+GET {{baseUrl}}/api/v1/statistics/orders?date=2026-11-05
+
+### A18 메뉴 통계 - 정상
+# 접수일 메뉴별 통계 (취소는 제외)
+GET {{baseUrl}}/api/v1/statistics/menus?date=2026-11-05
 
 ### A19 판매 중 메뉴
-GET http://127.0.0.1:8080/api/v1/menus/available
+GET {{baseUrl}}/api/v1/menus/available
 
 ### A20 메뉴명 검색
-GET http://127.0.0.1:8080/api/v1/menus/search?keyword=Sidamo
+GET {{baseUrl}}/api/v1/menus/search?keyword=Sidamo
 
 ### A21 판매 여부 변경
-PUT http://127.0.0.1:8080/api/v1/menus/1/availability
+PUT {{baseUrl}}/api/v1/menus/1/availability
 Content-Type: application/json
 
 {
@@ -59,16 +102,18 @@ Content-Type: application/json
 }
 
 ### A22 주문 메모 수정
-PUT http://localhost:8080/api/v1/orders/1/memo
+PUT {{baseUrl}}/api/v1/orders/1/memo
 Content-Type: application/json
 
 
 {"memo":"문 앞에 놓아주세요"}
 
 ### A23 재주문
-POST http://localhost:8080/api/v1/orders/1/reorder
+POST {{baseUrl}}/api/v1/orders/1/reorder
 
-
+### A24 고객 통계 - 정상
+# 접수일 고객별 통계
+GET {{baseUrl}}/api/v1/statistics/customers?date=2026-11-05
 
 
 
@@ -91,12 +136,12 @@ Content-Type: application/json
 
 
 
-
 ###대상 없음(404)(A07 메뉴 상세, 없는 번호 조회)
 GET http://127.0.0.1:8080/api/v1/menus/999999
 
 
-
+### 주문에 사용된 메뉴 삭제(409) 
+DELETE http://127.0.0.1:8080/api/v1/menus/1
 
 ### 배송지 불일치 (409) - 같은 이메일, 같은 배송일, 다른 주소
 POST http://localhost:8080/api/v1/orders
@@ -104,5 +149,6 @@ Content-Type: application/json
 
 {"email":"buyer@example.com","address":"부산시 다른길 99","postcode":"01234","items":[{"menuId":1,"quantity":1}]}
 
+### 메뉴가 등록된 카테고리 삭제 (409) - CATEGORY_IN_USE, 메뉴가 등록된 카테고리는 삭제할 수 없습니다. categoryId 1번은 싱글오리진
+DELETE {{baseUrl}}/api/v1/categories/1
 
-###

@@ -2,6 +2,8 @@
 # 접수일 주문 전체 통계 (취소도 포함)
 GET http://localhost:8080/api/v1/statistics/orders?date=2026-11-05
 
+// 아래 세개는 아무것도 안 나와도 정상
+
 ### A18 메뉴 통계 - 정상
 # 접수일 메뉴별 통계 (취소는 제외)
 GET http://localhost:8080/api/v1/statistics/menus?date=2026-11-05

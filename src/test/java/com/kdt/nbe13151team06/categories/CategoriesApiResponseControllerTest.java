@@ -1,6 +1,7 @@
 package com.kdt.nbe13151team06.categories;
 
 import com.kdt.nbe13151team06.categories.dto.CategoriesResponse;
+import com.kdt.nbe13151team06.menus.MenuController;
 import com.kdt.nbe13151team06.menus.MenuRepository;
 import com.kdt.nbe13151team06.menus.MenuService;
 import org.junit.jupiter.api.DisplayName;
@@ -20,15 +21,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(CategoriesController.class)
-//@Import(ApiExceptionAdvice.class)
+@WebMvcTest({CategoriesController.class, MenuController.class})
 public class CategoriesApiResponseControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean private CategoriesService categoriesService;
-    @MockitoBean private MenuRepository menuRepository;
+    @MockitoBean private MenuService menuService;
 
     @Test
     @DisplayName("A01 - 카테고리 목록 조회, 200, Category[], ID 오름차순 정렬")
@@ -96,7 +96,7 @@ public class CategoriesApiResponseControllerTest {
 
         // Stub
         given(this.categoriesService.findById(3L)).willReturn(row);
-        given(this.menuRepository.existsByCategoriesId(3L)).willReturn(false);
+        given(this.menuService.existsByCategoriesId(3L)).willReturn(false);
 
         // Act
         this.mockMvc.perform(delete("/api/v1/categories/3"))

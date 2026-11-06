@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class MenuService {
@@ -101,6 +102,18 @@ public class MenuService {
         menu.setAvailable(request.available());
         menuRepository.save(menu);
         return toResponse(menu);
+    }
+
+    @Transactional
+    public boolean existsByCategoriesId(Long id){
+        boolean exists=false;
+        for (Menus menu : menuRepository.findAllByOrderByIdAsc()) {
+            if(Objects.equals(menu.categories.getId(), id)){
+                exists=true;
+                break;
+            }
+        }
+        return exists;
     }
 
     private MenuResponse toResponse(Menus menu){

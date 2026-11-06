@@ -304,6 +304,6 @@ gradlew.bat test --tests "com.kdt.nbe13151team06.orders.OrderServiceTest"
 
 | 항목 | 내용 |
 | --- | --- |
-| 평가 브랜치 | `feature/init` |
+| 평가 브랜치 | `main` |
 | 태그 / 커밋 | |
 | 선택 심화 | 자동 테스트 구현 |
